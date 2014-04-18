@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>rosemanblog</title><link href="http://blog.roseman.org.uk" rel="alternate"></link><link href="http://blog.roseman.org.uk/feeds/tags/virtualenv.xml" rel="self"></link><id>http://blog.roseman.org.uk</id><updated>2010-04-21T17:41:49+01:00</updated><entry><title>Vim autocomplete, Django and virtualenv</title><link href="http://blog.roseman.org.uk/2010/04/21/vim-autocomplete-django-and-virtualenv/" rel="alternate"></link><updated>2010-04-21T17:41:49+01:00</updated><author><name>Daniel Roseman</name></author><id>http://blog.roseman.org.uk/2010/04/21/vim-autocomplete-django-and-virtualenv/</id><summary type="html">&lt;p&gt;One of the features I quite missed when I first moved from Komodo to Textmate as my main editor was autocompletion. Although I didn't use it very much, it was occasionally useful to be reminded of the methods available on a class, without having to look up the documentation or open the source module.&lt;/p&gt;
+&lt;p&gt;Now I've moved to vim, which has its own version of autocomplete: omnicompletion. This is activated by pressing Ctrl-X Ctrl-O in insert mode after typing the name of a class or instance, and displays a nice drop-down menu with all the available members of that object. The Python plugins which come with vim allow this function to not only complete items from the standard library, but also to parse your own files which are open in the editor, reading the modules you import and adding those elements to the completion dictionaries.&lt;/p&gt;
+&lt;p&gt;However, this wasn't working for me in my Django projects. After a lot of investigation, I found that this was down to three issues.&lt;/p&gt;
+&lt;p&gt;The first two of these related to the fact that I was working within a virtualenv. Despite the fact that I was starting MacVim after activating the virtual environment, the specific site-packages directory was not being added to the path and it was defaulting to the system-wide one, which on my system doesn't contain any of the packages I was using. The solution to this is to use the &lt;code&gt;activate_this.py&lt;/code&gt; script which is provided with virtualenv to activate it within another process - it's intended for use with mod_wsgi, but works just as well here. You can run it from the vim command line, using &lt;code&gt;python&lt;/code&gt; to tell vim that the following commands are in Python. (Note that the Python interpreter is actually persistent, so you can import modules or define variables in one command and they are still available in subsequent ones.)&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="p"&gt;:&lt;/span&gt;python activate_this &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;/path/to/virtualenv/bin/activate_this.py&amp;#39;&lt;/span&gt;
+&lt;span class="p"&gt;:&lt;/span&gt;python execfile&lt;span class="p"&gt;(&lt;/span&gt;activate_this&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;dict&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;__file__&lt;span class="p"&gt;=&lt;/span&gt;activate_this&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;This sets up the paths properly, but it was still not working. After a lot of investigation, I finally realised that this was because vim uses its own built-in Python interpreter, which is version 2.5, while my Snow Leopard machine was using 2.6. The confusion arose because doing this:&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="p"&gt;:&lt;/span&gt;python import sys; print sys.executable
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;&lt;em&gt;does&lt;/em&gt; return the path to my virtualenv's version of Python. To make it even worse, this:&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="p"&gt;:&lt;/span&gt;python print sys.&lt;span class="k"&gt;version&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;returned 2.5.2, when the executable printed in the previous command was actually Python 2.6.1! I can't explain that bit of weirdness, and would be interested to hear in the comments if anyone else can, but the fact that vim was clearly using a 2.5 Python did at least explain why it wasn't picking up the local packages which were installed in the virtualenv's lib/python2.6/site-packages directory.&lt;/p&gt;
+&lt;p&gt;The version of Python included is decided at compile time, and the pre-built versions of MacVim are actually compiled against Python 2.5, so to make it work with the 2.6 directories I had to build my own binaries. Luckily this is &lt;a href="http://code.google.com/p/macvim/wiki/Building"&gt;very easy&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;The third and final piece of the puzzle was Django-specific. Anything that uses a Django model, or indeed imports anything that references &lt;code&gt;django.db&lt;/code&gt;, needs a settings module. Normally when running from &lt;code&gt;manage.py&lt;/code&gt; this is set automatically, but obviously that doesn't work within vim. So you just need to set the &lt;code&gt;DJANGO_SETTINGS_MODULE&lt;/code&gt; environment variable, which again can be done from the vim command line:&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="k"&gt;let&lt;/span&gt; $DJANGO_SETTINGS_MODULE&lt;span class="p"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;mysite.settings&amp;#39;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;With all that in place, plus some further Python path manipulation to ensure it found all my project's code, I was now able to complete code within Django projects.&lt;/p&gt;
+&lt;p&gt;There's some work to be done to automate this. At the moment, I've put all the above commands into a &lt;code&gt;.vimrc&lt;/code&gt; file at the base of the virtual env, and added some code to my main &lt;code&gt;~/.vimrc&lt;/code&gt; to load it based on the value of the &lt;code&gt;VIRTUAL_ENV&lt;/code&gt; environment variable (which is set by &lt;code&gt;bin/activate&lt;/code&gt;):&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="k"&gt;if&lt;/span&gt; filereadable&lt;span class="p"&gt;(&lt;/span&gt;$VIRTUAL_ENV . &lt;span class="s1"&gt;&amp;#39;/.vimrc&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    source $VIRTUAL_ENV/.vimrc
+&lt;span class="k"&gt;endif&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;This probably isn't ideal, as it involves remembering to create that file with all its specific hard-coded paths each time I set up a new virtualenv. On the other hand, trying to do something more automatic will be difficult, as my settings files are not always in a predictable location - eg for work they are often under &lt;code&gt;projectname.configs.development.settings&lt;/code&gt; - so maybe this is the best I can do.&lt;/p&gt;</summary><category term="django"></category><category term="vim"></category><category term="virtualenv"></category><category term="autocomplete"></category></entry></feed>

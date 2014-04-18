@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <title>Django patterns, part 4: forwards generic relations</title>
+        <meta charset="utf-8" />
+        <link rel="stylesheet" href="../../.././theme/css/main.css" type="text/css" />
+        <link href="../../.././feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="rosemanblog ATOM Feed" />
+        
+        <link href="../../.././feeds/all.xml" type="application/atom+xml" rel="alternate" title="rosemanblog RSS Feed" />
+        
+
+        <!--[if IE]>
+                <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+
+        <!--[if lte IE 7]>
+                <link rel="stylesheet" type="text/css" media="all" href="../../.././css/ie.css"/>
+                <script src="../../.././js/IE8.js" type="text/javascript"></script><![endif]-->
+
+        <!--[if lt IE 7]>
+                <link rel="stylesheet" type="text/css" media="all" href="../../.././css/ie6.css"/><![endif]-->
+
+</head>
+
+<body id="index" class="home">
+
+        <header id="banner" class="body">
+                <h1><a href="../../../.">rosemanblog </a></h1>
+                <nav><ul>
+                
+                
+                
+                
+                
+                    <li class="active"><a href="../../.././category/Technical.html">Technical</a></li>
+                
+                </ul></nav>
+        </header><!-- /#banner -->
+                
+<section id="content" class="body">    
+<article>
+        <header> <h1 class="entry-title"><a href=""
+        rel="bookmark" title="Permalink to Django patterns, part 4: forwards generic relations">Django patterns, part 4: forwards generic relations</a></h1> 
+<a href="http://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="danielroseman">Tweet</a><script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
+ </header>
+        <div class="entry-content">
+        <footer class="post-info">
+        <abbr class="published" title="2010-02-22T06:50:55">
+                Mon 22 February 2010
+        </abbr>
+
+        
+        <address class="vcard author">
+                By <a class="url fn" href="../../.././author/Daniel Roseman.html">Daniel Roseman</a>
+        </address>
+        
+<p>In <a href="../../.././category/Technical.html">Technical</a>. </p>
+<p>tags: <a href="../../.././tag/django.html">django</a> <a href="../../.././tag/patterns.html">patterns</a> <a href="../../.././tag/generic-relation.html">generic-relation</a> <a href="../../.././tag/select_related.html">select_related</a> <a href="../../.././tag/query-efficiency.html">query-efficiency</a> </p>
+
+
+</footer><!-- /.post-info -->
+        <p>My <a href="../../../static/2010/02/15/django-patterns-part-3-efficient-generic-relations">last post</a> talked about how to follow reverse generic relations efficiently. However, there's a further potential inefficiency in using generic relations, and that's the forward relationship.</p>
+<p>If once again we take the example of an Asset model with a GenericForeignKey used to point at Articles and Galleries, we can get from each individual Asset to its related item by doing <code>asset.content_object</code>. However, if we have a whole queryset of Assets, doing this:</p>
+<div class="codehilite"><pre><span class="cp">{%</span> <span class="k">for</span> <span class="nv">asset</span> <span class="k">in</span> <span class="nv">assets</span> <span class="cp">%}</span>
+   <span class="cp">{{</span> <span class="nv">asset.content_object</span> <span class="cp">}}</span>
+<span class="cp">{%</span> <span class="k">endfor</span> <span class="cp">%}</span>
+</pre></div>
+
+
+<p>will result in as many queries as there are assets - in fact it's n+m, where n is the number of assets and m is the number of different content types, as you'll have one extra query per type to get the ContentType object. (Although it might be slightly less than that if you've used ContentTypes elsewhere, as the model manager caches lookups on the assumption that they never change once they've been set.)</p>
+<p>However, luckily we can make this much more efficient as well, again using a variation of the dictionary technique.</p>
+<div class="codehilite"><pre><span class="n">generics</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">queryset</span><span class="p">:</span>
+    <span class="n">generics</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">content_type_id</span><span class="p">,</span> <span class="nb">set</span><span class="p">())</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">object_id</span><span class="p">)</span>
+
+<span class="n">content_types</span> <span class="o">=</span> <span class="n">ContentType</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">in_bulk</span><span class="p">(</span><span class="n">generics</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+<span class="n">relations</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">ct</span><span class="p">,</span> <span class="n">fk_list</span> <span class="ow">in</span> <span class="n">generics</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">ct_model</span> <span class="o">=</span> <span class="n">content_types</span><span class="p">[</span><span class="n">ct</span><span class="p">]</span><span class="o">.</span><span class="n">model_class</span><span class="p">()</span>
+    <span class="n">relations</span><span class="p">[</span><span class="n">ct</span><span class="p">]</span> <span class="o">=</span> <span class="n">ct_model</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">in_bulk</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">fk_list</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">queryset</span><span class="p">:</span>
+    <span class="nb">setattr</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="s">&#39;_content_object_cache&#39;</span><span class="p">,</span> 
+            <span class="n">relations</span><span class="p">[</span><span class="n">content_type_id</span><span class="p">][</span><span class="n">object_id</span><span class="p">])</span>
+</pre></div>
+
+
+<p>Here we get all the different content types used by the relationships in the queryset, and the set of distinct object IDs for each one, then use the built-in <code>in_bulk</code> manager method to  get all the content types at once in a nice ready-to-use dictionary keyed by ID. Then, we do one query per content type, again using <code>in_bulk</code>, to get all the actual object. </p>
+<p>Finally, we simply set the relevant object to the <code>_content_object_cache</code> field of the source item. The reason we do this is that this is the attribute that Django would check, and populate if necessary, if you called <code>x.content_object</code> directly. By pre-populating it, we're ensuring that Django will never need to call the individual lookup - in effect what we're doing is implementing a kind of <code>select_related()</code> for generic relations. </p>
+        </div><!-- /.entry-content -->
+        
+        <div class="comments">
+        <h2>Comments !</h2>
+            <div id="disqus_thread"></div>
+            <script type="text/javascript">
+               var disqus_identifier = "2010/02/22/django-patterns-part-4-forwards-generic-relations/";
+               (function() {
+               var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+               dsq.src = 'http://rosemanblog.disqus.com/embed.js';
+               (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+              })();
+            </script>
+        </div>
+        
+
+</article>
+</section>
+
+        <section id="extras" class="body">
+        
+        
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+                            <li><a href="../../.././feeds/all.atom.xml" rel="alternate">atom feed</a></li>
+                            
+                            <li><a href="../../.././feeds/all.xml" rel="alternate">rss feed</a></li>
+                            
+
+                        
+                            <li><a href="http://twitter.com/danielroseman">twitter</a></li>
+                        
+                            <li><a href="http://github.com/danielroseman">github</a></li>
+                        
+                        </ul>
+                </div><!-- /.social -->
+        
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="http://alexis.notmyidea.org/pelican/">pelican</a>, which takes great advantages of <a href="http://python.org">python</a>.
+                </address><!-- /#about -->
+
+                <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+        </footer><!-- /#contentinfo -->
+
+
+
+
+<script type="text/javascript">
+    var disqus_shortname = 'rosemanblog';
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = 'http://' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
+
+</body>
+</html>

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <title>South migrations with MPTT</title>
+        <meta charset="utf-8" />
+        <link rel="stylesheet" href="../../.././theme/css/main.css" type="text/css" />
+        <link href="../../.././feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="rosemanblog ATOM Feed" />
+        
+        <link href="../../.././feeds/all.xml" type="application/atom+xml" rel="alternate" title="rosemanblog RSS Feed" />
+        
+
+        <!--[if IE]>
+                <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+
+        <!--[if lte IE 7]>
+                <link rel="stylesheet" type="text/css" media="all" href="../../.././css/ie.css"/>
+                <script src="../../.././js/IE8.js" type="text/javascript"></script><![endif]-->
+
+        <!--[if lt IE 7]>
+                <link rel="stylesheet" type="text/css" media="all" href="../../.././css/ie6.css"/><![endif]-->
+
+</head>
+
+<body id="index" class="home">
+
+        <header id="banner" class="body">
+                <h1><a href="../../../.">rosemanblog </a></h1>
+                <nav><ul>
+                
+                
+                
+                
+                
+                    <li class="active"><a href="../../.././category/Technical.html">Technical</a></li>
+                
+                </ul></nav>
+        </header><!-- /#banner -->
+                
+<section id="content" class="body">    
+<article>
+        <header> <h1 class="entry-title"><a href=""
+        rel="bookmark" title="Permalink to South migrations with MPTT">South migrations with MPTT</a></h1> 
+<a href="http://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="danielroseman">Tweet</a><script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
+ </header>
+        <div class="entry-content">
+        <footer class="post-info">
+        <abbr class="published" title="2009-12-08T06:37:35">
+                Tue 08 December 2009
+        </abbr>
+
+        
+        <address class="vcard author">
+                By <a class="url fn" href="../../.././author/Daniel Roseman.html">Daniel Roseman</a>
+        </address>
+        
+<p>In <a href="../../.././category/Technical.html">Technical</a>. </p>
+<p>tags: <a href="../../.././tag/django.html">django</a> <a href="../../.././tag/south.html">south</a> <a href="../../.././tag/mptt.html">mptt</a> </p>
+
+
+</footer><!-- /.post-info -->
+        <p>We've been using <a href="http://code.google.com/p/django-mptt/">django-MPTT</a> at work for quite a while. It's a great way to manage hierarchical data in a read-efficient way, and we use it heavily in our CMS application. I'll definitely be talking about it further in future posts.</p>
+<p>Recently we moved our database migrations from our defunct dmigrations project to Andrew Godwin's wonderful <a href="http://south.aeracode.org/">South</a> application. One of South's best features is the ability to 'freeze' the ORM within each migration, so that you can manipulate the db via the familiar Django syntax rather than having to deal with raw SQL.</p>
+<p>However, we ran into a problem when trying to use this to add new instances to a model that uses MPTT. We're actually using Ben Frishman's <a href="http://github.com/bfirsh/django-mptt">fork</a> of django-mptt, which he wrote while he was working for us this summer. This has a base model class that defines all the MPTT fields and methods, rather than monkey-patching them in as the original version does.</p>
+<p>The issue was that the frozen ORM only includes the basic fields that are defined on the actual model. This led to trouble when inserting a new object, especially when it's in the middle of an existing tree. MPTT includes values which identify an item's place in its tree, and when a new object is inserted most of the elements in the tree have to be updated to reflect the new positioning. django-mptt normally deals with all the SQL changes necessary, but this wasn't happening within a migration, because the dynamically-created model wasn't inheriting the correct models and fields.</p>
+<p>The answer turned out to be simple, although it is undocumented. The frozen ORM definitions are stored in each migration as a nested dictionary. Each model is an key in the top level dictionary, whose value is a dictionary containing the field name/definitions as keys/values. However, in the sub-dictionaries, along with the field definitions, you can also store Meta defintions, including a South-specific extension: <code>_bases</code>, which defines the model base to inherit from. For example:</p>
+<div class="codehilite"><pre><span class="p">{</span>
+    <span class="err">&#39;</span><span class="n">categories</span><span class="p">.</span><span class="n">category</span><span class="err">&#39;</span><span class="o">:</span> <span class="p">{</span>
+        <span class="err">&#39;</span><span class="n">Meta</span><span class="err">&#39;</span><span class="o">:</span> <span class="p">{</span><span class="err">&#39;</span><span class="n">unique_together</span><span class="err">&#39;</span><span class="o">:</span> <span class="s">&quot;([&#39;slug&#39;, &#39;parent&#39;],)&quot;</span><span class="p">,</span> <span class="err">&#39;</span><span class="n">_bases</span><span class="err">&#39;</span><span class="o">:</span> <span class="p">(</span><span class="err">&#39;</span><span class="n">mptt</span><span class="p">.</span><span class="n">models</span><span class="p">.</span><span class="n">Model</span><span class="err">&#39;</span><span class="p">,)},</span>
+        <span class="err">&#39;</span><span class="n">id</span><span class="err">&#39;</span><span class="o">:</span> <span class="p">(</span><span class="err">&#39;</span><span class="n">django</span><span class="p">.</span><span class="n">db</span><span class="p">.</span><span class="n">models</span><span class="p">.</span><span class="n">fields</span><span class="p">.</span><span class="n">AutoField</span><span class="err">&#39;</span><span class="p">,</span> <span class="p">[],</span> <span class="p">{</span><span class="err">&#39;</span><span class="n">primary_key</span><span class="err">&#39;</span><span class="o">:</span> <span class="err">&#39;</span><span class="n">True</span><span class="err">&#39;</span><span class="p">}),</span>
+        <span class="err">&#39;</span><span class="n">name</span><span class="err">&#39;</span><span class="o">:</span> <span class="p">(</span><span class="err">&#39;</span><span class="n">django</span><span class="p">.</span><span class="n">db</span><span class="p">.</span><span class="n">models</span><span class="p">.</span><span class="n">fields</span><span class="p">.</span><span class="n">CharField</span><span class="err">&#39;</span><span class="p">,</span> <span class="p">[],</span> <span class="p">{</span><span class="err">&#39;</span><span class="n">max_length</span><span class="err">&#39;</span><span class="o">:</span> <span class="err">&#39;</span><span class="mi">50</span><span class="err">&#39;</span><span class="p">}),</span>
+        <span class="err">&#39;</span><span class="n">parent</span><span class="err">&#39;</span><span class="o">:</span> <span class="p">(</span><span class="err">&#39;</span><span class="n">django</span><span class="p">.</span><span class="n">db</span><span class="p">.</span><span class="n">models</span><span class="p">.</span><span class="n">fields</span><span class="p">.</span><span class="n">related</span><span class="p">.</span><span class="n">ForeignKey</span><span class="err">&#39;</span><span class="p">,</span> <span class="p">[],</span> <span class="p">{</span><span class="err">&#39;</span><span class="n">blank</span><span class="err">&#39;</span><span class="o">:</span> <span class="err">&#39;</span><span class="n">True</span><span class="err">&#39;</span><span class="p">,</span> <span class="err">&#39;</span><span class="n">related_name</span><span class="err">&#39;</span><span class="o">:</span> <span class="s">&quot;&#39;children&#39;&quot;</span><span class="p">,</span> <span class="err">&#39;</span><span class="n">null</span><span class="err">&#39;</span><span class="o">:</span> <span class="err">&#39;</span><span class="n">True</span><span class="err">&#39;</span><span class="p">,</span> <span class="err">&#39;</span><span class="n">to</span><span class="err">&#39;</span><span class="o">:</span> <span class="s">&quot;orm[&#39;categories.Category&#39;]&quot;</span><span class="p">}),</span>
+        <span class="err">&#39;</span><span class="n">slug</span><span class="err">&#39;</span><span class="o">:</span> <span class="p">(</span><span class="err">&#39;</span><span class="n">django</span><span class="p">.</span><span class="n">db</span><span class="p">.</span><span class="n">models</span><span class="p">.</span><span class="n">fields</span><span class="p">.</span><span class="n">CharField</span><span class="err">&#39;</span><span class="p">,</span> <span class="p">[],</span> <span class="p">{</span><span class="err">&#39;</span><span class="n">max_length</span><span class="err">&#39;</span><span class="o">:</span> <span class="err">&#39;</span><span class="mi">50</span><span class="err">&#39;</span><span class="p">}),</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>This ensures that the frozen <code>category</code> model inherits from <code>mptt.models.Model</code>, and gains all the special MPTT magic.</p>
+        </div><!-- /.entry-content -->
+        
+        <div class="comments">
+        <h2>Comments !</h2>
+            <div id="disqus_thread"></div>
+            <script type="text/javascript">
+               var disqus_identifier = "2009/12/08/south-migrations-mptt/";
+               (function() {
+               var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+               dsq.src = 'http://rosemanblog.disqus.com/embed.js';
+               (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+              })();
+            </script>
+        </div>
+        
+
+</article>
+</section>
+
+        <section id="extras" class="body">
+        
+        
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+                            <li><a href="../../.././feeds/all.atom.xml" rel="alternate">atom feed</a></li>
+                            
+                            <li><a href="../../.././feeds/all.xml" rel="alternate">rss feed</a></li>
+                            
+
+                        
+                            <li><a href="http://twitter.com/danielroseman">twitter</a></li>
+                        
+                            <li><a href="http://github.com/danielroseman">github</a></li>
+                        
+                        </ul>
+                </div><!-- /.social -->
+        
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="http://alexis.notmyidea.org/pelican/">pelican</a>, which takes great advantages of <a href="http://python.org">python</a>.
+                </address><!-- /#about -->
+
+                <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+        </footer><!-- /#contentinfo -->
+
+
+
+
+<script type="text/javascript">
+    var disqus_shortname = 'rosemanblog';
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = 'http://' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
+
+</body>
+</html>

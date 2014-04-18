@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>rosemanblog</title><link href="http://blog.roseman.org.uk" rel="alternate"></link><link href="http://blog.roseman.org.uk/feeds/tags/ssh.xml" rel="self"></link><id>http://blog.roseman.org.uk</id><updated>2010-01-07T11:47:14+00:00</updated><entry><title>SSH and Mac OSX Terminal</title><link href="http://blog.roseman.org.uk/2010/01/07/ssh-and-mac-osx-terminal/" rel="alternate"></link><updated>2010-01-07T11:47:14+00:00</updated><author><name>Daniel Roseman</name></author><id>http://blog.roseman.org.uk/2010/01/07/ssh-and-mac-osx-terminal/</id><summary type="html">&lt;p&gt;I like the Mac as a development environment most of the time, but occasionally some things annoy me. &lt;/p&gt;
+&lt;p&gt;One of these niggles is the way that the tab title in Terminal changes when you SSH to an external server, but doesn't change back when you close the connection. So you end up with tabs that claim to be connected to a server, but aren't.&lt;/p&gt;
+&lt;p&gt;The culprit seems to be SSH itself. Here's my solution: a shell script that runs SSH and then sets the tab title back to the default "Terminal".&lt;/p&gt;
+&lt;table class="codehilitetable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
+2
+3&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="c"&gt;#!/bin/sh&lt;/span&gt;
+ssh &lt;span class="nv"&gt;$*&lt;/span&gt;
+&lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;\033]0;Terminal\007&amp;quot;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+
+&lt;p&gt;I've saved this to ~/bin/sshp, and made it executable, so now I just type &lt;code&gt;sshp myserver&lt;/code&gt;  instead of ssh. A further step would be to alias it back to ssh in .bash_profile with &lt;code&gt;alias ssh=sshp&lt;/code&gt;&lt;/p&gt;</summary><category term="osx"></category><category term="mac"></category><category term="macintosh"></category><category term="terminal"></category><category term="ssh"></category></entry></feed>

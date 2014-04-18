@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>rosemanblog</title><link href="http://blog.roseman.org.uk" rel="alternate"></link><link href="http://blog.roseman.org.uk/feeds/tags/git.xml" rel="self"></link><id>http://blog.roseman.org.uk</id><updated>2009-10-03T08:14:29+01:00</updated><entry><title>The one where my friend the sysadmin kills me</title><link href="http://blog.roseman.org.uk/2009/10/03/one-where-my-friend-sysadmin-kills-me/" rel="alternate"></link><updated>2009-10-03T08:14:29+01:00</updated><author><name>Daniel Roseman</name></author><id>http://blog.roseman.org.uk/2009/10/03/one-where-my-friend-sysadmin-kills-me/</id><summary type="html">&lt;p&gt;Warning: this entry is very much a matter of 'This isn't the right way to do it, but it works for me'.&lt;/p&gt;
+&lt;p&gt;For small projects that are in active development, I frequently have to deploy code changes to the live server. To make this as simple as possible for me, so I can concentrate on the coding, I tend to like running on a live checkout of the code directly from the repo.&lt;/p&gt;
+&lt;p&gt;I never really got this automated properly with svn, although no doubt it's a simple matter of setting up the right post-commit hooks. However, now I'm working mainly in git, and I thought it would be good if I could push straight from my local repo to the remote one, and automatically see the production code update.&lt;/p&gt;
+&lt;p&gt;It's fairly easy to set up a remote repository to push to - I followed the instructions &lt;a href="http://toolmantim.com/articles/setting_up_a_new_remote_git_repository"&gt;here&lt;/a&gt;, which worked a treat. However, this wasn't helping with getting this code to auto-checkout and deploy itself. So I began experimenting, and what I came up with was this.&lt;/p&gt;
+&lt;p&gt;Firstly, instead of setting up a bare repo as recommended in those instructions, use a standard &lt;code&gt;git init&lt;/code&gt; for your remote. If you now try and push to this, git will complain with a long message explaining that "Updating the currently checked out branch may cause confusion". It gives some tips about how to turn off that message, but we can avoid it altogether by using branches.&lt;/p&gt;
+&lt;p&gt;On the server, simply create and check out a &lt;code&gt;live&lt;/code&gt; branch:&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;   &lt;span class="n"&gt;git&lt;/span&gt; &lt;span class="n"&gt;branch&lt;/span&gt; &lt;span class="n"&gt;live&lt;/span&gt;
+   &lt;span class="n"&gt;git&lt;/span&gt; &lt;span class="n"&gt;checkout&lt;/span&gt; &lt;span class="n"&gt;live&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Now, we just need a hook that pulls from master to live every time we commit to master. The hook we need is called &lt;code&gt;post-receive&lt;/code&gt;, and like all hooks it lives in &lt;code&gt;.git/hooks&lt;/code&gt;. Here's mine:&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="c"&gt;#!/bin/sh&lt;/span&gt;
+&lt;span class="nb"&gt;read &lt;/span&gt;params
+&lt;span class="nb"&gt;cd&lt;/span&gt; .. 
+&lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;ASSET_VERSION = &amp;#39;`echo $params|cut -d &amp;quot;&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot; -f2`&amp;#39;&amp;quot;&lt;/span&gt; &amp;gt; local_settings.py
+env -i ~/bin/git reset --hard
+env -i ~/bin/git pull
+&lt;span class="nb"&gt;exec&lt;/span&gt; ~/webapps/mysite/apache2/bin/restart
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;The two git commands simply ensure that the live branch has no local changes, and pulls all changes direct from master - which in turn of course has been updated directly from my development machine.&lt;/p&gt;
+&lt;p&gt;The rest is me trying to be even cleverer. I wanted an automatic cache-busting mechanism to stop my javascript being cached while in development. So I have a simple &lt;code&gt;local_settings.py&lt;/code&gt; file which defines a value which is appended to the querystring of all my asset urls. The hook updates this automatically - it is passed the hash of the current commit, so it reads the parameters (which is far more difficult in bash than it needs to be, by the way), extracts the hash, and writes it to &lt;code&gt;local_settings.py&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;The final step is to restart Apache, and we're laughing.&lt;/p&gt;
+&lt;p&gt;Now, no doubt there are much better ways of doing this. But like I say, it works for me.&lt;/p&gt;</summary><category term="git"></category></entry></feed>
