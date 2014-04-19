@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8" />
+        <title>Django patterns: memoizing</title>
+        <link rel="stylesheet" href="../../../../theme/css/main.css" />
+
+        <!--[if IE]>
+            <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="../../../../">rosemanblog </a></h1>
+                <nav><ul>
+                    <li class="active"><a href="../../../../category/technical.html">Technical</a></li>
+                </ul></nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="../../../../2009/12/20/django-patterns-memoizing/" rel="bookmark"
+           title="Permalink to Django patterns: memoizing">Django patterns: memoizing</a></h1>
+    </header>
+
+    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2009-12-20T17:34:27">
+                Sun 20 December 2009
+        </abbr>
+
+        <address class="vcard author">
+                By <a class="url fn" href="../../../../author/daniel-roseman.html">Daniel Roseman</a>
+        </address>
+<p>In <a href="../../../../category/technical.html">Technical</a>. </p>
+<p>tags: <a href="../../../../tag/django.html">django</a><a href="../../../../tag/patterns.html">patterns</a><a href="../../../../tag/memoize.html">memoize</a><a href="../../../../tag/descriptor.html">descriptor</a><a href="../../../../tag/decorator.html">decorator</a></p>
+</footer><!-- /.post-info -->      <p>One of the things I wanted to do with this blog was to cover some of the design patterns I've discovered/come across/stolen over the years I've been working with Django. So this is the first in what I hope will be a long-running series on Django patterns.</p>
+<p>Memoizing is the process by which a complicated or expensive function is replaced by a simpler one that returns the previously calculated value. This is a very useful thing to do in a complicated model, especially in cases where methods like <code>get_absolute_url</code> are calculated via a series of lookups on related models. Frequently I've found myself calling one of these methods on the same object several times within a view or template, leading to a huge amount of unnecessary database calls.</p>
+<p>It's very easy to do this manually - the method simply needs to check whether the cached value already exists, if not calculate it and store it somewhere, then return the cached value:</p>
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">get_expensive_calculation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;_expensive_calculation&#39;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_expensive_calculation</span> <span class="o">=</span> <span class="n">do_expensive_calculation</span><span class="p">()</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_expensive_calculation</span>
+</pre></div>
+
+
+<p>Here the cache lives within the instance itself. For the way I use it, this is useful: instances are created and destroyed within a single request/response cycle, so the cache dies with the object at the end of that process, and I don't need to worry about invalidating the cache if the value subsequently changes. Naturally, you could use Django's cache framework here - you'd need to create a unique key somehow, perhaps using the model name and pk as a prefix - but otherwise it would work pretty much the same way.</p>
+<p>However, it's a bit of a pain having to write this same boilerplate each time you want to memoize something, so I wanted to write a decorator that would do it, which I could simply apply to a model method to get it to automatically cache the result. There are various memoizing decorators out there, but they mostly suffer from two problems: either they only work on plain functions, rather than methods, or they create a global cache, which would lead to a memory leak as the value would be kept even though the instance had gone out of scope.</p>
+<p>So here's my version:</p>
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">memoize_method</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="s">&quot;__</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">func</span><span class="o">.</span><span class="n">__name__</span>
+    <span class="k">def</span> <span class="nf">inner</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">inner</span>
+</pre></div>
+
+
+<p>This is pretty simple in the end. The decorator uses the name of the function it's decorating to create a key, and when it's called it is passed 'self', so it checks if that key exists on that object and either creates or returns it.</p>
+<p>One potential problem with this is that it doesn't take any account of the method's arguments: after the first call, it will always return the same value even if called again with completely different arguments. Most of the time, this won't be a problem: since the cache only persists for a single request, you're most likely to be calling it with the same arguments each time. But it's fairly simple to extend the caching mechanism to use parameters within the key:</p>
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">memoize_method_with_params</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">wrap</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="s">&quot;__</span><span class="si">%s</span><span class="s">__</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">func</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="s">&#39;__&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">:</span><span class="si">%%</span><span class="s">(</span><span class="si">%s</span><span class="s">)s&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span> <span class="k">for</span>
+                                                      <span class="n">a</span> <span class="ow">in</span> <span class="n">params</span><span class="p">]))</span>
+        <span class="k">def</span> <span class="nf">inner</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="n">actual_key</span> <span class="o">=</span> <span class="n">key</span> <span class="o">%</span> <span class="n">kwargs</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">actual_key</span><span class="p">):</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">actual_key</span><span class="p">,</span> <span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+            <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">actual_key</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">inner</span>
+    <span class="k">return</span> <span class="n">wrap</span>
+</pre></div>
+
+
+<p>This time, since the decorator itself takes arguments, you need to use the double-wrap method: the outer function is called on definition, and it returns the decorator function, which itself contains the inner wrapped function. The algorithm to calculate the key looks complex, but is actually just creating a string in the form <code>__funcname__key1:%(key1)s__key2:%(key2)s</code>, which will use the dictionary string interpolation method to include the actual values when the function is called. (One issue, left for the reader to correct: <code>params</code> must be a list or tuple, if passed a string it will fail.) </p>
+<p>Although this is pretty nice, I can't help feeling that I should be using descriptors to do this. Inspired by a posting by <a href="http://martyalchin.com/2007/nov/23/python-descriptors-part-1-of-2/">Marty Alchin</a> and one by <a href="http://blog.ianbicking.org/2008/10/24/decorators-and-descriptors/">Ian Bicking</a>, I attempted to make this work, but I unfortunately drew a blank - the problem is that only the <code>__get__</code> method has access to the instance, where the cache needs to be stored, but that needs to be available in <code>__call__</code> somehow. One possible solution would be to have <code>__get__</code> return <em>another</em> descriptor itself, but that seems like overkill for this.</p>
+    </div><!-- /.entry-content -->
+
+  </article>
+</section>
+        <section id="extras" class="body">
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+
+                            <li><a href="http://twitter.com/danielroseman">twitter</a></li>
+                            <li><a href="http://github.com/danielroseman">github</a></li>
+                            <li><a href="http://stackoverflow.com/users/104349/daniel-roseman">stackoverflow</a></li>
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
+                </address><!-- /#about -->
+
+                <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+        </footer><!-- /#contentinfo -->
+
+</body>
+</html>

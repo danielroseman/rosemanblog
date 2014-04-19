@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8" />
+        <title>Stepping through code in IPython</title>
+        <link rel="stylesheet" href="../../../../theme/css/main.css" />
+
+        <!--[if IE]>
+            <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="../../../../">rosemanblog </a></h1>
+                <nav><ul>
+                    <li class="active"><a href="../../../../category/technical.html">Technical</a></li>
+                </ul></nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="../../../../2013/09/19/stepping-through-code-in-ipython/" rel="bookmark"
+           title="Permalink to Stepping through code in IPython">Stepping through code in IPython</a></h1>
+    </header>
+
+    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2013-09-19T00:00:00">
+                Thu 19 September 2013
+        </abbr>
+
+        <address class="vcard author">
+                By <a class="url fn" href="../../../../author/daniel-roseman.html">Daniel Roseman</a>
+        </address>
+<p>In <a href="../../../../category/technical.html">Technical</a>. </p>
+<p>tags: <a href="../../../../tag/python.html">python</a><a href="../../../../tag/ipython.html">ipython</a></p>
+</footer><!-- /.post-info -->      <p>I spend a lot of time in the Python shell - specifically, IPython. Like many Python programmers, I find it invaluable for delving into the structure of objects, exploring their members, running their methods, and so on. It's really the dynamic language's answer to the really good IDE support you'd get in a more static language like Java.</p>
+<p>One of the things it's really useful to be able to do in the shell is to import a module and then step through the code in the debugger. Now, you can do this simply by importing <code>pdb</code>, but then you don't get the nice IPython-enhanced version that you get when you're dropped into the IPython debugger via the <code>%debug</code> magic.</p>
+<p>Obviously, there must be a way of getting that IPython debugger manually within IPython itself - and there is:</p>
+<div class="highlight"><pre><span class="kn">from</span> <span class="nn">IPython.core.debugger</span> <span class="kn">import</span> <span class="n">Pdb</span>
+<span class="n">ipdb</span> <span class="o">=</span> <span class="n">Pdb</span><span class="p">()</span>
+</pre></div>
+
+
+<p>Now you can do with the <code>ipdb</code> object anything you would previously have done with <code>pdb</code>, except more snazzily.</p>
+<p>The other thing I always forget is how to actually call an imported function and start in debug mode. Most of the time, when debugging running code, I just do <code>import pdb;pdb.set_trace()</code> and leave it at that (I do this so frequently I have a snippet in vim for it). But to call a function from the shell and start debugging straight away, you need another function: <code>runcall()</code>.</p>
+<p>This takes the function and its parameters, as separate arguments. So to start the function <code>foo(bar, baz, quux)</code> in the debugger you would do <code>ipdb.runcall(foo, bar, baz, quux)</code>.</p>
+<p>Now I understand why this is: otherwise you would be calling the debugger on the result of the function, which isn't what you want. But it's still a bit annoying to have to remember to do that. So, I decided to write an IPython magic script that translates the function call syntax into the separate-argument version - while still accepting the latter. I haven't written any magics before, so this is an experiment with the syntax.</p>
+<p>Drop this into <code>~/.ipython/extensions</code> and do <code>%load_ext step</code> from IPython. Now you can do <code>%step foo(bar, baz, quux)</code> and step through your code with joy.</p>
+<div class="highlight"><pre><span class="kn">import</span> <span class="nn">re</span>
+
+<span class="kn">from</span> <span class="nn">IPython.core.magic</span> <span class="kn">import</span> <span class="n">Magics</span><span class="p">,</span> <span class="n">magics_class</span><span class="p">,</span> <span class="n">line_magic</span>
+<span class="kn">from</span> <span class="nn">IPython.core.debugger</span> <span class="kn">import</span> <span class="n">Pdb</span>
+
+<span class="n">ipdb</span> <span class="o">=</span> <span class="n">Pdb</span><span class="p">()</span>
+
+<span class="nd">@magics_class</span>
+<span class="k">class</span> <span class="nc">StepMagic</span><span class="p">(</span><span class="n">Magics</span><span class="p">):</span>
+
+  <span class="nd">@line_magic</span>
+  <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+    <span class="c"># params might either be</span>
+    <span class="c"># foo, bar, baz</span>
+    <span class="c"># or</span>
+    <span class="c"># foo(bar, baz)</span>
+    <span class="c"># we need to determine if there is a comma before the opening paren.</span>
+    <span class="n">comma_pos</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;,&#39;</span><span class="p">)</span>
+    <span class="n">paren_pos</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;)&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">comma_pos</span> <span class="o">&gt;</span> <span class="o">-</span><span class="mi">1</span> <span class="ow">and</span> <span class="p">(</span><span class="n">comma_pos</span> <span class="o">&lt;</span> <span class="n">paren_pos</span> <span class="ow">or</span> <span class="n">paren_pos</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+      <span class="n">param_list</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;,&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="c"># Match everything up to first open paren, and everything inside parens.</span>
+      <span class="c"># We use lazy repetition on the first group to ensure that it copes when</span>
+      <span class="c"># the expressions within the parens are themselves calls.</span>
+      <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s">r&#39;(.*?)\((.*)\)&#39;</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+      <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+        <span class="n">func</span><span class="p">,</span> <span class="n">args</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()</span>
+        <span class="c"># TODO: this doesn&#39;t work when args consists of lists/tuples.</span>
+        <span class="n">param_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">func</span><span class="p">]</span> <span class="o">+</span> <span class="n">args</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;,&#39;</span><span class="p">)</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="c"># Assume it&#39;s a single expression</span>
+        <span class="n">param_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">params</span><span class="p">]</span>
+
+    <span class="n">evaluated_params</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">shell</span><span class="o">.</span><span class="n">ev</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">param_list</span><span class="p">]</span>
+    <span class="n">ipdb</span><span class="o">.</span><span class="n">runcall</span><span class="p">(</span><span class="o">*</span><span class="n">evaluated_params</span><span class="p">)</span>
+
+
+<span class="n">_loaded</span> <span class="o">=</span> <span class="bp">False</span>
+
+<span class="k">def</span> <span class="nf">load_ipython_extension</span><span class="p">(</span><span class="n">ip</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Load the extension in IPython.&quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">_loaded</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_loaded</span><span class="p">:</span>
+        <span class="n">plugin</span> <span class="o">=</span> <span class="n">StepMagic</span><span class="p">(</span><span class="n">shell</span><span class="o">=</span><span class="n">ip</span><span class="p">)</span>
+        <span class="n">ip</span><span class="o">.</span><span class="n">register_magics</span><span class="p">(</span><span class="n">plugin</span><span class="p">)</span>
+        <span class="n">_loaded</span> <span class="o">=</span> <span class="bp">True</span>
+</pre></div>
+
+
+<p>As I note in the code, there's a bug: if your parameters are themselves lists or tuples, this will fail, as it will split the elements of the list into separate arguments. There are probably various ways of dealing with that, from better regexes all the way to messing with ASTs, but it's good enough as far as it goes.</p>
+    </div><!-- /.entry-content -->
+
+  </article>
+</section>
+        <section id="extras" class="body">
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+
+                            <li><a href="http://twitter.com/danielroseman">twitter</a></li>
+                            <li><a href="http://github.com/danielroseman">github</a></li>
+                            <li><a href="http://stackoverflow.com/users/104349/daniel-roseman">stackoverflow</a></li>
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
+                </address><!-- /#about -->
+
+                <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+        </footer><!-- /#contentinfo -->
+
+</body>
+</html>

@@ -1,172 +1,95 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-        <title>rosemanblog - terminal</title>
         <meta charset="utf-8" />
-        <link rel="stylesheet" href=".././theme/css/main.css" type="text/css" />
-        <link href=".././feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="rosemanblog ATOM Feed" />
-        
-        <link href=".././feeds/all.xml" type="application/atom+xml" rel="alternate" title="rosemanblog RSS Feed" />
-        
+        <title>rosemanblog - terminal</title>
+        <link rel="stylesheet" href="../theme/css/main.css" />
 
         <!--[if IE]>
-                <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
-
-        <!--[if lte IE 7]>
-                <link rel="stylesheet" type="text/css" media="all" href=".././css/ie.css"/>
-                <script src=".././js/IE8.js" type="text/javascript"></script><![endif]-->
-
-        <!--[if lt IE 7]>
-                <link rel="stylesheet" type="text/css" media="all" href=".././css/ie6.css"/><![endif]-->
-
+            <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
 </head>
 
 <body id="index" class="home">
-
         <header id="banner" class="body">
-                <h1><a href="../.">rosemanblog </a></h1>
+                <h1><a href="../">rosemanblog </a></h1>
                 <nav><ul>
-                
-                
-                
-                
-                
-                    <li ><a href=".././category/Technical.html">Technical</a></li>
-                
+                    <li><a href="../category/technical.html">Technical</a></li>
                 </ul></nav>
         </header><!-- /#banner -->
-                
 
-            
-
-        
-        
             <aside id="featured" class="body">
                 <article>
-                    <h1 class="entry-title"><a href=".././2010/12/15/macvim-terminal-vim/">From MacVim to terminal vim</a></h1> 
-                    <footer class="post-info">
+                    <h1 class="entry-title"><a href="../2010/12/15/macvim-terminal-vim/">From MacVim to terminal vim</a></h1>
+<footer class="post-info">
         <abbr class="published" title="2010-12-15T06:18:09">
                 Wed 15 December 2010
         </abbr>
 
-        
         <address class="vcard author">
-                By <a class="url fn" href=".././author/Daniel Roseman.html">Daniel Roseman</a>
+                By <a class="url fn" href="../author/daniel-roseman.html">Daniel Roseman</a>
         </address>
-        
-<p>In <a href=".././category/Technical.html">Technical</a>. </p>
-<p>tags: <a href=".././tag/vim.html">vim</a> <a href=".././tag/macvim.html">macvim</a> <a href=".././tag/terminal.html">terminal</a> <a href=".././tag/ubuntu.html">ubuntu</a> </p>
-
-
+<p>In <a href="../category/technical.html">Technical</a>. </p>
+<p>tags: <a href="../tag/vim.html">vim</a><a href="../tag/macvim.html">macvim</a><a href="../tag/terminal.html">terminal</a><a href="../tag/ubuntu.html">ubuntu</a></p>
 </footer><!-- /.post-info --><p>I'm a very happy user of MacVim, which very nicely integrates vim into a native Mac app. But occasionally I need to edit code via a terminal, which means dropping back to plain old vim. Recently I found myself working on a project that was distributed on a self-contained virtual machine, and after several days of mucking around with mounting the VM's filesystem via <code>sshfs</code> and suffering continued networking drop-outs, I decided to bite the bullet and move to working entirely within the terminal.</p>
 <p>Mostly, the transition was fairly simple. I was able to copy over my <code>.vimrc</code> and the contents of the <code>.vim</code> directory to my home directory on the VM, and almost everything 'just worked'. There were a few exceptions.</p>
 <p>The first thing that I missed was the mouse. Although like any good vim user I do stay mainly on the keyboard, it's nice to have the mouse available occasionally as an alternative for things like rapid scrolling with the wheel, tab/window switching, and text selection. I initially thought I would just have to do without, but it turns out that it is quite possible to have the mouse working within the terminal. </p>
 <p>The main issue is that although there is a well-defined way for an xterm terminal to send mouse events, the OSX Terminal app doesn't support it. However, there is a nice easy hack that does work: <a href="http://bitheap.org/mouseterm/">MouseTerm</a>. This is a SIMBL plugin which patches the terminal so it sends mouse events. I already had SIMBL installed, as I use Ciarán Walsh's indispensible <a href="http://ciaranwal.sh/2007/11/01/customising-colours-in-leopard-terminal">TerminalColors</a> to make the terminal colours sensible, so it was just a matter of clicking the MouseTerm .dmg to get it working. Then I just added <code>set mouse=a</code> to my .vimrc, and hey presto: mouse in terminal vim.</p>
 <p>Secondly, tabs. I use tabs all the time in vim. MacVim overrides vim's built-in tabs with proper native ones, so that you can open them in the standard way - eg opening documents in new tabs via <code>:tabe</code> - but then switch between them with the standard OSX shortcut keys, <code>cmd-[</code> and <code>cmd-]</code>. In the terminal, the first of these continues to work, but since the tabs are now vim's own ones, switching needs to be done by the vim shortcuts of <code>gt</code> and <code>gT</code>. Not too much to learn - I might try and force myself to use those within MacVim, for the sake of consistency.</p>
 <p>Thirdly, extensions. As I said above, most of these just worked by copying over my <code>.vim</code> directory. But one of the ones I use most of all - the excellent <a href="https://wincent.com/products/command-t">Command-T</a> file navigator - did not. This was because the version of vim installed on Ubuntu by default via <code>apt-get install vim</code> does not include Ruby support, even though it does include most of the other options. Removing that and installing the <code>vim-nox</code> package instead rectified that.</p>
-<p>The final issue is cursors. MacVim nicely distinguishes between insert and normal mode by switching between bar and block cursors. In the terminal, this doesn't happen. It appears to be possible to send custom escape sequences when switching modes: the <code>termcap-cursor-shape</code> help topic explains how. But I couldn't get this to work even for the examples in that topic, which switch colour rather than shape; I don't even know how to begin finding the right escape codes to change the cursor shape. In any case, I suspect something in the interface between Terminal.app and the Ubuntu bash shell is preventing colour codes from working - for example, <code>printf "\e[0 32 m"</code> works in the OSX shell to change the text colour to green, but the same command fails to work when I'm ssh-ed in to the VM. Any hints would be gratefully received.</p><p>There are <a href=".././2010/12/15/macvim-terminal-vim/#disqus_thread">comments</a>.</p>
-                </article>
-                
+<p>The final issue is cursors. MacVim nicely distinguishes between insert and normal mode by switching between bar and block cursors. In the terminal, this doesn't happen. It appears to be possible to send custom escape sequences when switching modes: the <code>termcap-cursor-shape</code> help topic explains how. But I couldn't get this to work even for the examples in that topic, which switch colour rather than shape; I don't even know how to begin finding the right escape codes to change the cursor shape. In any case, I suspect something in the interface between Terminal.app and the Ubuntu bash shell is preventing colour codes from working - for example, <code>printf "\e[0 32 m"</code> works in the OSX shell to change the text colour to green, but the same command fails to work when I'm ssh-ed in to the VM. Any hints would be gratefully received.</p>                </article>
             </aside><!-- /#featured -->
-            
                 <section id="content" class="body">
                     <h1>Other articles</h1>
                     <hr />
-                        <ol id="posts-list" class="hfeed">
-            
-        
-        
-        
-        
+                    <ol id="posts-list" class="hfeed">
 
-        
-         
-            
-            <li><article class="hentry">    
+            <li><article class="hentry">
                 <header>
-                        <h1><a href=".././2010/01/07/ssh-and-mac-osx-terminal/" rel="bookmark" title="Permalink to SSH and Mac OSX Terminal">SSH and Mac OSX Terminal</a></h1>
+                    <h1><a href="../2010/01/07/ssh-and-mac-osx-terminal/" rel="bookmark"
+                           title="Permalink to SSH and Mac OSX Terminal">SSH and Mac OSX Terminal</a></h1>
                 </header>
-                
+
                 <div class="entry-content">
-                <footer class="post-info">
+<footer class="post-info">
         <abbr class="published" title="2010-01-07T11:47:14">
                 Thu 07 January 2010
         </abbr>
 
-        
         <address class="vcard author">
-                By <a class="url fn" href=".././author/Daniel Roseman.html">Daniel Roseman</a>
+                By <a class="url fn" href="../author/daniel-roseman.html">Daniel Roseman</a>
         </address>
-        
-<p>In <a href=".././category/Technical.html">Technical</a>. </p>
-<p>tags: <a href=".././tag/osx.html">osx</a> <a href=".././tag/mac.html">mac</a> <a href=".././tag/macintosh.html">macintosh</a> <a href=".././tag/terminal.html">terminal</a> <a href=".././tag/ssh.html">ssh</a> </p>
-
-
-</footer><!-- /.post-info -->
-                <p>I like the Mac as a development environment most of the time, but occasionally some things annoy me. </p>
+<p>In <a href="../category/technical.html">Technical</a>. </p>
+<p>tags: <a href="../tag/osx.html">osx</a><a href="../tag/mac.html">mac</a><a href="../tag/macintosh.html">macintosh</a><a href="../tag/terminal.html">terminal</a><a href="../tag/ssh.html">ssh</a></p>
+</footer><!-- /.post-info -->                <p>I like the Mac as a development environment most of the time, but occasionally some things annoy me. </p>
 <p>One of these niggles is the way that the tab title in Terminal changes when you SSH to an external server, but doesn't change back when you close the connection. So ...</p>
-                <a class="readmore" href=".././2010/01/07/ssh-and-mac-osx-terminal/">read more</a>
-                <p>There are <a href=".././2010/01/07/ssh-and-mac-osx-terminal/#disqus_thread">comments</a>.</p>
+                <a class="readmore" href="../2010/01/07/ssh-and-mac-osx-terminal/">read more</a>
                 </div><!-- /.entry-content -->
             </article></li>
-        
-        
-            
+            </ol><!-- /#posts-list -->
 <p class="paginator">
-    
     Page 1 / 1
-    
 </p>
-
-        
-
-    
-    </ol><!-- /#posts-list -->
-    </section><!-- /#content -->
-
-
-
+            </section><!-- /#content -->
         <section id="extras" class="body">
-        
-        
                 <div class="social">
                         <h2>social</h2>
                         <ul>
-                            <li><a href=".././feeds/all.atom.xml" rel="alternate">atom feed</a></li>
-                            
-                            <li><a href=".././feeds/all.xml" rel="alternate">rss feed</a></li>
-                            
 
-                        
                             <li><a href="http://twitter.com/danielroseman">twitter</a></li>
-                        
                             <li><a href="http://github.com/danielroseman">github</a></li>
-                        
+                            <li><a href="http://stackoverflow.com/users/104349/daniel-roseman">stackoverflow</a></li>
                         </ul>
                 </div><!-- /.social -->
-        
         </section><!-- /#extras -->
 
         <footer id="contentinfo" class="body">
                 <address id="about" class="vcard body">
-                Proudly powered by <a href="http://alexis.notmyidea.org/pelican/">pelican</a>, which takes great advantages of <a href="http://python.org">python</a>.
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
                 </address><!-- /#about -->
 
                 <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
         </footer><!-- /#contentinfo -->
-
-
-
-
-<script type="text/javascript">
-    var disqus_shortname = 'rosemanblog';
-    (function () {
-        var s = document.createElement('script'); s.async = true;
-        s.type = 'text/javascript';
-        s.src = 'http://' + disqus_shortname + '.disqus.com/count.js';
-        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
-    }());
-</script>
 
 </body>
 </html>

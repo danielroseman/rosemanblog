@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8" />
+        <title>Vim taglist and Django</title>
+        <link rel="stylesheet" href="../../../../theme/css/main.css" />
+
+        <!--[if IE]>
+            <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="../../../../">rosemanblog </a></h1>
+                <nav><ul>
+                    <li class="active"><a href="../../../../category/technical.html">Technical</a></li>
+                </ul></nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="../../../../2009/12/26/vim-taglist-and-django/" rel="bookmark"
+           title="Permalink to Vim taglist and Django">Vim taglist and Django</a></h1>
+    </header>
+
+    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2009-12-26T12:33:41">
+                Sat 26 December 2009
+        </abbr>
+
+        <address class="vcard author">
+                By <a class="url fn" href="../../../../author/daniel-roseman.html">Daniel Roseman</a>
+        </address>
+<p>In <a href="../../../../category/technical.html">Technical</a>. </p>
+<p>tags: <a href="../../../../tag/django.html">django</a><a href="../../../../tag/vim.html">vim</a></p>
+</footer><!-- /.post-info -->      <p>Inspired by the <a href="http://www.viemu.com/a_vi_vim_graphical_cheat_sheet_tutorial.html">graphical cheat sheet here</a>, I've recently moved over to Vim as my main development environment.</p>
+<p>After installing a whole range of plugins, I found that one of them, taglist, no longer worked with my Django code. The reason was that something was changing the filetype of Django modules to 'python.django', and taglist - unlike most other plugins - was trying to match against the whole filetype, rather than just a part of it.</p>
+<p>My solution is to hack taglist so that it does a partial match on the filetype. In the <code>Tlist_Get_Buffer_Filetype</code> function (line 984), change</p>
+<div class="highlight"><pre><span class="k">let</span> buf_ft <span class="p">=</span> getbufvar<span class="p">(</span><span class="k">a</span>:bnum<span class="p">,</span> <span class="s1">&#39;&amp;filetype&#39;</span><span class="p">)</span>
+</pre></div>
+
+
+<p>to </p>
+<div class="highlight"><pre><span class="k">let</span> buf_ft <span class="p">=</span> split<span class="p">(</span>getbufvar<span class="p">(</span><span class="k">a</span>:bnum<span class="p">,</span> <span class="s1">&#39;&amp;filetype&#39;</span><span class="p">),</span> <span class="s1">&#39;\.&#39;</span><span class="p">)</span>[<span class="m">0</span>]
+</pre></div>
+    </div><!-- /.entry-content -->
+
+  </article>
+</section>
+        <section id="extras" class="body">
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+
+                            <li><a href="http://twitter.com/danielroseman">twitter</a></li>
+                            <li><a href="http://github.com/danielroseman">github</a></li>
+                            <li><a href="http://stackoverflow.com/users/104349/daniel-roseman">stackoverflow</a></li>
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
+                </address><!-- /#about -->
+
+                <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+        </footer><!-- /#contentinfo -->
+
+</body>
+</html>
