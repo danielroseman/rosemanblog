@@ -3,7 +3,8 @@
 <head>
         <meta charset="utf-8" />
         <title>rosemanblog - decorator</title>
-        <link rel="stylesheet" href="../theme/css/main.css" />
+        <link rel="stylesheet" href="http://blog.roseman.org.uk/theme/css/main.css" />
+        <link href="http://blog.roseman.org.uk/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="rosemanblog Atom Feed" />
 
         <!--[if IE]>
             <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -12,25 +13,25 @@
 
 <body id="index" class="home">
         <header id="banner" class="body">
-                <h1><a href="../">rosemanblog </a></h1>
+                <h1><a href="http://blog.roseman.org.uk/">rosemanblog </a></h1>
                 <nav><ul>
-                    <li><a href="../category/technical.html">Technical</a></li>
+                    <li><a href="http://blog.roseman.org.uk/category/technical.html">Technical</a></li>
                 </ul></nav>
         </header><!-- /#banner -->
 
             <aside id="featured" class="body">
                 <article>
-                    <h1 class="entry-title"><a href="../2009/12/20/django-patterns-memoizing/">Django patterns: memoizing</a></h1>
+                    <h1 class="entry-title"><a href="http://blog.roseman.org.uk/2009/12/20/django-patterns-memoizing/">Django patterns: memoizing</a></h1>
 <footer class="post-info">
         <abbr class="published" title="2009-12-20T17:34:27">
                 Sun 20 December 2009
         </abbr>
 
         <address class="vcard author">
-                By <a class="url fn" href="../author/daniel-roseman.html">Daniel Roseman</a>
+                By <a class="url fn" href="http://blog.roseman.org.uk/author/daniel-roseman.html">Daniel Roseman</a>
         </address>
-<p>In <a href="../category/technical.html">Technical</a>. </p>
-<p>tags: <a href="../tag/django.html">django</a><a href="../tag/patterns.html">patterns</a><a href="../tag/memoize.html">memoize</a><a href="../tag/descriptor.html">descriptor</a><a href="../tag/decorator.html">decorator</a></p>
+<p>In <a href="http://blog.roseman.org.uk/category/technical.html">Technical</a>. </p>
+<p>tags: <a href="http://blog.roseman.org.uk/tag/django.html">django</a><a href="http://blog.roseman.org.uk/tag/patterns.html">patterns</a><a href="http://blog.roseman.org.uk/tag/memoize.html">memoize</a><a href="http://blog.roseman.org.uk/tag/descriptor.html">descriptor</a><a href="http://blog.roseman.org.uk/tag/decorator.html">decorator</a></p>
 </footer><!-- /.post-info --><p>One of the things I wanted to do with this blog was to cover some of the design patterns I've discovered/come across/stolen over the years I've been working with Django. So this is the first in what I hope will be a long-running series on Django patterns.</p>
 <p>Memoizing is the process by which a complicated or expensive function is replaced by a simpler one that returns the previously calculated value. This is a very useful thing to do in a complicated model, especially in cases where methods like <code>get_absolute_url</code> are calculated via a series of lookups on related models. Frequently I've found myself calling one of these methods on the same object several times within a view or template, leading to a huge amount of unnecessary database calls.</p>
 <p>It's very easy to do this manually - the method simply needs to check whether the cached value already exists, if not calculate it and store it somewhere, then return the cached value:</p>
@@ -71,7 +72,7 @@
 
 
 <p>This time, since the decorator itself takes arguments, you need to use the double-wrap method: the outer function is called on definition, and it returns the decorator function, which itself contains the inner wrapped function. The algorithm to calculate the key looks complex, but is actually just creating a string in the form <code>__funcname__key1:%(key1)s__key2:%(key2)s</code>, which will use the dictionary string interpolation method to include the actual values when the function is called. (One issue, left for the reader to correct: <code>params</code> must be a list or tuple, if passed a string it will fail.) </p>
-<p>Although this is pretty nice, I can't help feeling that I should be using descriptors to do this. Inspired by a posting by <a href="http://martyalchin.com/2007/nov/23/python-descriptors-part-1-of-2/">Marty Alchin</a> and one by <a href="http://blog.ianbicking.org/2008/10/24/decorators-and-descriptors/">Ian Bicking</a>, I attempted to make this work, but I unfortunately drew a blank - the problem is that only the <code>__get__</code> method has access to the instance, where the cache needs to be stored, but that needs to be available in <code>__call__</code> somehow. One possible solution would be to have <code>__get__</code> return <em>another</em> descriptor itself, but that seems like overkill for this.</p>                </article>
+<p>Although this is pretty nice, I can't help feeling that I should be using descriptors to do this. Inspired by a posting by <a href="http://martyalchin.com/2007/nov/23/python-descriptors-part-1-of-2/">Marty Alchin</a> and one by <a href="http://blog.ianbicking.org/2008/10/24/decorators-and-descriptors/">Ian Bicking</a>, I attempted to make this work, but I unfortunately drew a blank - the problem is that only the <code>__get__</code> method has access to the instance, where the cache needs to be stored, but that needs to be available in <code>__call__</code> somehow. One possible solution would be to have <code>__get__</code> return <em>another</em> descriptor itself, but that seems like overkill for this.</p><p>There are <a href="http://blog.roseman.org.uk/2009/12/20/django-patterns-memoizing/#disqus_thread">comments</a>.</p>                </article>
 <p class="paginator">
     Page 1 / 1
 </p>
@@ -82,6 +83,7 @@
                 <div class="social">
                         <h2>social</h2>
                         <ul>
+                            <li><a href="http://blog.roseman.org.uk/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
 
                             <li><a href="http://twitter.com/danielroseman">twitter</a></li>
                             <li><a href="http://github.com/danielroseman">github</a></li>
@@ -98,5 +100,14 @@
                 <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
         </footer><!-- /#contentinfo -->
 
+<script type="text/javascript">
+    var disqus_shortname = 'rosemanblog';
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = 'http://' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
 </body>
 </html>

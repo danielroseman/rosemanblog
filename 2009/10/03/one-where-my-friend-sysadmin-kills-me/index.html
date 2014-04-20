@@ -3,7 +3,8 @@
 <head>
         <meta charset="utf-8" />
         <title>The one where my friend the sysadmin kills me</title>
-        <link rel="stylesheet" href="../../../../theme/css/main.css" />
+        <link rel="stylesheet" href="http://blog.roseman.org.uk/theme/css/main.css" />
+        <link href="http://blog.roseman.org.uk/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="rosemanblog Atom Feed" />
 
         <!--[if IE]>
             <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -12,17 +13,18 @@
 
 <body id="index" class="home">
         <header id="banner" class="body">
-                <h1><a href="../../../../">rosemanblog </a></h1>
+                <h1><a href="http://blog.roseman.org.uk/">rosemanblog </a></h1>
                 <nav><ul>
-                    <li class="active"><a href="../../../../category/technical.html">Technical</a></li>
+                    <li class="active"><a href="http://blog.roseman.org.uk/category/technical.html">Technical</a></li>
                 </ul></nav>
         </header><!-- /#banner -->
 <section id="content" class="body">
   <article>
     <header>
       <h1 class="entry-title">
-        <a href="../../../../2009/10/03/one-where-my-friend-sysadmin-kills-me/" rel="bookmark"
+        <a href="http://blog.roseman.org.uk/2009/10/03/one-where-my-friend-sysadmin-kills-me/" rel="bookmark"
            title="Permalink to The one where my friend the sysadmin kills me">The one where my friend the sysadmin kills me</a></h1>
+<a href="http://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="danielroseman">Tweet</a><script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
     </header>
 
     <div class="entry-content">
@@ -32,10 +34,10 @@
         </abbr>
 
         <address class="vcard author">
-                By <a class="url fn" href="../../../../author/daniel-roseman.html">Daniel Roseman</a>
+                By <a class="url fn" href="http://blog.roseman.org.uk/author/daniel-roseman.html">Daniel Roseman</a>
         </address>
-<p>In <a href="../../../../category/technical.html">Technical</a>. </p>
-<p>tags: <a href="../../../../tag/git.html">git</a></p>
+<p>In <a href="http://blog.roseman.org.uk/category/technical.html">Technical</a>. </p>
+<p>tags: <a href="http://blog.roseman.org.uk/tag/git.html">git</a></p>
 </footer><!-- /.post-info -->      <p>Warning: this entry is very much a matter of 'This isn't the right way to do it, but it works for me'.</p>
 <p>For small projects that are in active development, I frequently have to deploy code changes to the live server. To make this as simple as possible for me, so I can concentrate on the coding, I tend to like running on a live checkout of the code directly from the repo.</p>
 <p>I never really got this automated properly with svn, although no doubt it's a simple matter of setting up the right post-commit hooks. However, now I'm working mainly in git, and I thought it would be good if I could push straight from my local repo to the remote one, and automatically see the production code update.</p>
@@ -63,6 +65,19 @@ env -i ~/bin/git pull
 <p>The final step is to restart Apache, and we're laughing.</p>
 <p>Now, no doubt there are much better ways of doing this. But like I say, it works for me.</p>
     </div><!-- /.entry-content -->
+    <div class="comments">
+      <h2>Comments !</h2>
+      <div id="disqus_thread"></div>
+      <script type="text/javascript">
+        var disqus_identifier = "2009/10/03/one-where-my-friend-sysadmin-kills-me/";
+        var disqus_url = "http://blog.roseman.org.uk/2009/10/03/one-where-my-friend-sysadmin-kills-me/";
+        (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://rosemanblog.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+      </script>
+    </div>
 
   </article>
 </section>
@@ -70,6 +85,7 @@ env -i ~/bin/git pull
                 <div class="social">
                         <h2>social</h2>
                         <ul>
+                            <li><a href="http://blog.roseman.org.uk/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
 
                             <li><a href="http://twitter.com/danielroseman">twitter</a></li>
                             <li><a href="http://github.com/danielroseman">github</a></li>
@@ -86,5 +102,14 @@ env -i ~/bin/git pull
                 <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
         </footer><!-- /#contentinfo -->
 
+<script type="text/javascript">
+    var disqus_shortname = 'rosemanblog';
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = 'http://' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
 </body>
 </html>

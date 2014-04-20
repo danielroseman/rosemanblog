@@ -3,7 +3,8 @@
 <head>
         <meta charset="utf-8" />
         <title>Django aggregation and a simple GROUP BY</title>
-        <link rel="stylesheet" href="../../../../theme/css/main.css" />
+        <link rel="stylesheet" href="http://blog.roseman.org.uk/theme/css/main.css" />
+        <link href="http://blog.roseman.org.uk/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="rosemanblog Atom Feed" />
 
         <!--[if IE]>
             <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -12,17 +13,18 @@
 
 <body id="index" class="home">
         <header id="banner" class="body">
-                <h1><a href="../../../../">rosemanblog </a></h1>
+                <h1><a href="http://blog.roseman.org.uk/">rosemanblog </a></h1>
                 <nav><ul>
-                    <li class="active"><a href="../../../../category/technical.html">Technical</a></li>
+                    <li class="active"><a href="http://blog.roseman.org.uk/category/technical.html">Technical</a></li>
                 </ul></nav>
         </header><!-- /#banner -->
 <section id="content" class="body">
   <article>
     <header>
       <h1 class="entry-title">
-        <a href="../../../../2010/05/10/django-aggregation-and-simple-group/" rel="bookmark"
+        <a href="http://blog.roseman.org.uk/2010/05/10/django-aggregation-and-simple-group/" rel="bookmark"
            title="Permalink to Django aggregation and a simple GROUP BY">Django aggregation and a simple GROUP BY</a></h1>
+<a href="http://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="danielroseman">Tweet</a><script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
     </header>
 
     <div class="entry-content">
@@ -32,10 +34,10 @@
         </abbr>
 
         <address class="vcard author">
-                By <a class="url fn" href="../../../../author/daniel-roseman.html">Daniel Roseman</a>
+                By <a class="url fn" href="http://blog.roseman.org.uk/author/daniel-roseman.html">Daniel Roseman</a>
         </address>
-<p>In <a href="../../../../category/technical.html">Technical</a>. </p>
-<p>tags: <a href="../../../../tag/django.html">django</a><a href="../../../../tag/aggregation.html">aggregation</a><a href="../../../../tag/orm.html">ORM</a><a href="../../../../tag/group-by.html">group-by</a></p>
+<p>In <a href="http://blog.roseman.org.uk/category/technical.html">Technical</a>. </p>
+<p>tags: <a href="http://blog.roseman.org.uk/tag/django.html">django</a><a href="http://blog.roseman.org.uk/tag/aggregation.html">aggregation</a><a href="http://blog.roseman.org.uk/tag/orm.html">ORM</a><a href="http://blog.roseman.org.uk/tag/group-by.html">group-by</a></p>
 </footer><!-- /.post-info -->      <p>I love Django's aggregation framework. It very successfully abstracts the common aggregration tasks into a Pythonic syntax that sits extremely well with the rest of the ORM, and the documentation explains it all without a single reference to SQL.</p>
 <p>But sometimes that very abstraction gets in the way of working out what you want to do. One example of this happened to me today when I needed to do a sum of values grouped by a single value on a model - in SQL terms, a simple <code>GROUP BY</code> query.</p>
 <p>The documentation is very clear about how to do aggregations across an entire QuerySet, and annotations across a relationship. So you can, for example, easily do a sum of all the 'value' fields in a model, or a sum of all the 'value' fields on a related model for each instance of the parent model. But the implication is that these are the only things you can do. So I was left wondering if I had to create a dummy related model just to contain the unique values of the field I wanted to group on.</p>
@@ -54,6 +56,19 @@
 
 <p>One thing to be aware of: as the docs do note, the order of <code>values</code> and <code>annotate</code> is significant here. This way round, it groups by the fields listed in <code>values</code> and then annotates. But if you put <code>annotate</code> first, it does the calculation for each individual record, without grouping, then uses <code>values</code> to simply restrict the fields it outputs.</p>
     </div><!-- /.entry-content -->
+    <div class="comments">
+      <h2>Comments !</h2>
+      <div id="disqus_thread"></div>
+      <script type="text/javascript">
+        var disqus_identifier = "2010/05/10/django-aggregation-and-simple-group/";
+        var disqus_url = "http://blog.roseman.org.uk/2010/05/10/django-aggregation-and-simple-group/";
+        (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://rosemanblog.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+      </script>
+    </div>
 
   </article>
 </section>
@@ -61,6 +76,7 @@
                 <div class="social">
                         <h2>social</h2>
                         <ul>
+                            <li><a href="http://blog.roseman.org.uk/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
 
                             <li><a href="http://twitter.com/danielroseman">twitter</a></li>
                             <li><a href="http://github.com/danielroseman">github</a></li>
@@ -77,5 +93,14 @@
                 <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
         </footer><!-- /#contentinfo -->
 
+<script type="text/javascript">
+    var disqus_shortname = 'rosemanblog';
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = 'http://' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
 </body>
 </html>

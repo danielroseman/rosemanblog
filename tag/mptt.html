@@ -3,7 +3,8 @@
 <head>
         <meta charset="utf-8" />
         <title>rosemanblog - mptt</title>
-        <link rel="stylesheet" href="../theme/css/main.css" />
+        <link rel="stylesheet" href="http://blog.roseman.org.uk/theme/css/main.css" />
+        <link href="http://blog.roseman.org.uk/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="rosemanblog Atom Feed" />
 
         <!--[if IE]>
             <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -12,25 +13,25 @@
 
 <body id="index" class="home">
         <header id="banner" class="body">
-                <h1><a href="../">rosemanblog </a></h1>
+                <h1><a href="http://blog.roseman.org.uk/">rosemanblog </a></h1>
                 <nav><ul>
-                    <li><a href="../category/technical.html">Technical</a></li>
+                    <li><a href="http://blog.roseman.org.uk/category/technical.html">Technical</a></li>
                 </ul></nav>
         </header><!-- /#banner -->
 
             <aside id="featured" class="body">
                 <article>
-                    <h1 class="entry-title"><a href="../2009/12/08/south-migrations-mptt/">South migrations with MPTT</a></h1>
+                    <h1 class="entry-title"><a href="http://blog.roseman.org.uk/2009/12/08/south-migrations-mptt/">South migrations with MPTT</a></h1>
 <footer class="post-info">
         <abbr class="published" title="2009-12-08T06:37:35">
                 Tue 08 December 2009
         </abbr>
 
         <address class="vcard author">
-                By <a class="url fn" href="../author/daniel-roseman.html">Daniel Roseman</a>
+                By <a class="url fn" href="http://blog.roseman.org.uk/author/daniel-roseman.html">Daniel Roseman</a>
         </address>
-<p>In <a href="../category/technical.html">Technical</a>. </p>
-<p>tags: <a href="../tag/django.html">django</a><a href="../tag/south.html">south</a><a href="../tag/mptt.html">mptt</a></p>
+<p>In <a href="http://blog.roseman.org.uk/category/technical.html">Technical</a>. </p>
+<p>tags: <a href="http://blog.roseman.org.uk/tag/django.html">django</a><a href="http://blog.roseman.org.uk/tag/south.html">south</a><a href="http://blog.roseman.org.uk/tag/mptt.html">mptt</a></p>
 </footer><!-- /.post-info --><p>We've been using <a href="http://code.google.com/p/django-mptt/">django-MPTT</a> at work for quite a while. It's a great way to manage hierarchical data in a read-efficient way, and we use it heavily in our CMS application. I'll definitely be talking about it further in future posts.</p>
 <p>Recently we moved our database migrations from our defunct dmigrations project to Andrew Godwin's wonderful <a href="http://south.aeracode.org/">South</a> application. One of South's best features is the ability to 'freeze' the ORM within each migration, so that you can manipulate the db via the familiar Django syntax rather than having to deal with raw SQL.</p>
 <p>However, we ran into a problem when trying to use this to add new instances to a model that uses MPTT. We're actually using Ben Frishman's <a href="http://github.com/bfirsh/django-mptt">fork</a> of django-mptt, which he wrote while he was working for us this summer. This has a base model class that defines all the MPTT fields and methods, rather than monkey-patching them in as the original version does.</p>
@@ -48,7 +49,7 @@
 </pre></div>
 
 
-<p>This ensures that the frozen <code>category</code> model inherits from <code>mptt.models.Model</code>, and gains all the special MPTT magic.</p>                </article>
+<p>This ensures that the frozen <code>category</code> model inherits from <code>mptt.models.Model</code>, and gains all the special MPTT magic.</p><p>There are <a href="http://blog.roseman.org.uk/2009/12/08/south-migrations-mptt/#disqus_thread">comments</a>.</p>                </article>
 <p class="paginator">
     Page 1 / 1
 </p>
@@ -59,6 +60,7 @@
                 <div class="social">
                         <h2>social</h2>
                         <ul>
+                            <li><a href="http://blog.roseman.org.uk/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
 
                             <li><a href="http://twitter.com/danielroseman">twitter</a></li>
                             <li><a href="http://github.com/danielroseman">github</a></li>
@@ -75,5 +77,14 @@
                 <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
         </footer><!-- /#contentinfo -->
 
+<script type="text/javascript">
+    var disqus_shortname = 'rosemanblog';
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = 'http://' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
 </body>
 </html>

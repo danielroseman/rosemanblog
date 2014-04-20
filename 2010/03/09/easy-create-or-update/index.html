@@ -3,7 +3,8 @@
 <head>
         <meta charset="utf-8" />
         <title>Easy create or update</title>
-        <link rel="stylesheet" href="../../../../theme/css/main.css" />
+        <link rel="stylesheet" href="http://blog.roseman.org.uk/theme/css/main.css" />
+        <link href="http://blog.roseman.org.uk/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="rosemanblog Atom Feed" />
 
         <!--[if IE]>
             <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -12,17 +13,18 @@
 
 <body id="index" class="home">
         <header id="banner" class="body">
-                <h1><a href="../../../../">rosemanblog </a></h1>
+                <h1><a href="http://blog.roseman.org.uk/">rosemanblog </a></h1>
                 <nav><ul>
-                    <li class="active"><a href="../../../../category/technical.html">Technical</a></li>
+                    <li class="active"><a href="http://blog.roseman.org.uk/category/technical.html">Technical</a></li>
                 </ul></nav>
         </header><!-- /#banner -->
 <section id="content" class="body">
   <article>
     <header>
       <h1 class="entry-title">
-        <a href="../../../../2010/03/09/easy-create-or-update/" rel="bookmark"
+        <a href="http://blog.roseman.org.uk/2010/03/09/easy-create-or-update/" rel="bookmark"
            title="Permalink to Easy create or update">Easy create or update</a></h1>
+<a href="http://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="danielroseman">Tweet</a><script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
     </header>
 
     <div class="entry-content">
@@ -32,10 +34,10 @@
         </abbr>
 
         <address class="vcard author">
-                By <a class="url fn" href="../../../../author/daniel-roseman.html">Daniel Roseman</a>
+                By <a class="url fn" href="http://blog.roseman.org.uk/author/daniel-roseman.html">Daniel Roseman</a>
         </address>
-<p>In <a href="../../../../category/technical.html">Technical</a>. </p>
-<p>tags: <a href="../../../../tag/django.html">django</a><a href="../../../../tag/create_or_update.html">create_or_update</a><a href="../../../../tag/query-efficiency.html">query-efficiency</a></p>
+<p>In <a href="http://blog.roseman.org.uk/category/technical.html">Technical</a>. </p>
+<p>tags: <a href="http://blog.roseman.org.uk/tag/django.html">django</a><a href="http://blog.roseman.org.uk/tag/create_or_update.html">create_or_update</a><a href="http://blog.roseman.org.uk/tag/query-efficiency.html">query-efficiency</a></p>
 </footer><!-- /.post-info -->      <p>One common database operation that isn't supported out of the box by Django's ORM is <code>create_or_update</code> - in other words, given a set of parameters, either update an existing object or create a new one if there isn't one already.</p>
 <p>The naive implementation is to do a <code>get()</code> on the model, catching the <code>DoesNotExist</code> exception if there's no match and instantiating a new object, then updating the attributes and saving. (You wouldn't want to use <code>get_or_create</code> here, as that doesn't allow you to update the instance if it already exists, so you'd have some duplication of code and db queries).</p>
 <div class="highlight"><pre><span class="k">try</span><span class="p">:</span>
@@ -63,6 +65,19 @@
 <p>The <code>attrs</code> dictionary contains the field names/values to use to update the object, and <code>filter_attrs</code> is the filter names/values to find the object to update. If we're creating a new object, it will of course need to set both the <code>attrs</code> values <em>and</em> the <code>filter_attrs</code>, so we update one dictionary from the other.</p>
 <p>Now, note that this will always call a db UPDATE, and if no match exists, it will additionally call an INSERT. Compare this with the original version, which always calls a SELECT, plus another SELECT and an UPDATE if the match exists, but just an INSERT if there's no match. So whether this is more efficient will depend on the use case - if you expect more updates than create, this version should be better (a single UPDATE versus SELECT+UPDATE), but if the reverse is true the original implementation will probably be better.</p>
     </div><!-- /.entry-content -->
+    <div class="comments">
+      <h2>Comments !</h2>
+      <div id="disqus_thread"></div>
+      <script type="text/javascript">
+        var disqus_identifier = "2010/03/09/easy-create-or-update/";
+        var disqus_url = "http://blog.roseman.org.uk/2010/03/09/easy-create-or-update/";
+        (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://rosemanblog.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+      </script>
+    </div>
 
   </article>
 </section>
@@ -70,6 +85,7 @@
                 <div class="social">
                         <h2>social</h2>
                         <ul>
+                            <li><a href="http://blog.roseman.org.uk/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
 
                             <li><a href="http://twitter.com/danielroseman">twitter</a></li>
                             <li><a href="http://github.com/danielroseman">github</a></li>
@@ -86,5 +102,14 @@
                 <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
         </footer><!-- /#contentinfo -->
 
+<script type="text/javascript">
+    var disqus_shortname = 'rosemanblog';
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = 'http://' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
 </body>
 </html>

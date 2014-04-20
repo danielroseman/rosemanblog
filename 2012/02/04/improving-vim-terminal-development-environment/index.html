@@ -3,7 +3,8 @@
 <head>
         <meta charset="utf-8" />
         <title>Improving the vim terminal development environment</title>
-        <link rel="stylesheet" href="../../../../theme/css/main.css" />
+        <link rel="stylesheet" href="http://blog.roseman.org.uk/theme/css/main.css" />
+        <link href="http://blog.roseman.org.uk/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="rosemanblog Atom Feed" />
 
         <!--[if IE]>
             <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -12,17 +13,18 @@
 
 <body id="index" class="home">
         <header id="banner" class="body">
-                <h1><a href="../../../../">rosemanblog </a></h1>
+                <h1><a href="http://blog.roseman.org.uk/">rosemanblog </a></h1>
                 <nav><ul>
-                    <li class="active"><a href="../../../../category/technical.html">Technical</a></li>
+                    <li class="active"><a href="http://blog.roseman.org.uk/category/technical.html">Technical</a></li>
                 </ul></nav>
         </header><!-- /#banner -->
 <section id="content" class="body">
   <article>
     <header>
       <h1 class="entry-title">
-        <a href="../../../../2012/02/04/improving-vim-terminal-development-environment/" rel="bookmark"
+        <a href="http://blog.roseman.org.uk/2012/02/04/improving-vim-terminal-development-environment/" rel="bookmark"
            title="Permalink to Improving the vim terminal development environment">Improving the vim terminal development environment</a></h1>
+<a href="http://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="danielroseman">Tweet</a><script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
     </header>
 
     <div class="entry-content">
@@ -32,10 +34,10 @@
         </abbr>
 
         <address class="vcard author">
-                By <a class="url fn" href="../../../../author/daniel-roseman.html">Daniel Roseman</a>
+                By <a class="url fn" href="http://blog.roseman.org.uk/author/daniel-roseman.html">Daniel Roseman</a>
         </address>
-<p>In <a href="../../../../category/technical.html">Technical</a>. </p>
-<p>tags: <a href="../../../../tag/vim.html">vim</a><a href="../../../../tag/iterm2.html">iterm2</a></p>
+<p>In <a href="http://blog.roseman.org.uk/category/technical.html">Technical</a>. </p>
+<p>tags: <a href="http://blog.roseman.org.uk/tag/vim.html">vim</a><a href="http://blog.roseman.org.uk/tag/iterm2.html">iterm2</a></p>
 </footer><!-- /.post-info -->      <p>Since I started working at Google, I've been doing almost all my development using vim through the terminal. Since <a href="/2010/12/15/macvim-terminal-vim/">my last post</a> on the subject (over a year ago - bad blogger), I've discovered some significant improvements to what I recommended there, and I thought I'd share what I've learned.</p>
 <p>The biggest improvement is to switch to <a href="http://www.iterm2.com/">iTerm2</a> as my terminal - thanks to <a href="http://rosslawley.co.uk/">Ross</a> for the recommendation. Not only does it remove the need for the TerminalColors hack, it also supports mouse events natively - so the MouseTerm hack is no longer needed. Plus, it includes support for control codes that change the cursor shape, so it is now simple to get vim to show whether it's in normal or insert mode. Just add these lines to <code>.vimrc</code>:</p>
 <div class="highlight"><pre><span class="k">let</span> &amp;<span class="nb">t_SI</span> <span class="p">=</span> <span class="s2">&quot;\&lt;Esc&gt;]50;CursorShape=1\x7&quot;</span>
@@ -50,6 +52,19 @@
 <p>Now, in vim, you can yank to the X clipboard by using the <code>+</code> register, using <code>"+y</code> - I now have this mapped to Ctrl-C, which is close enough to the Mac's default of Cmd-C that I find it easy to remember. In bleeding-edge versions of vim later than 7.3.74, there is actually an additional option that you can use so that all yanks go directly to the X clipboard: <code>set clipboard=unnamedplus</code>. But I found that this ignores the difference between line-wise and character-wise selection, treating everything as character-wise, so cutting and pasting full lines inside vim becomes unnecessarily annoying. Better to learn the extra shortcut for those times when I explicitly need to copy out of vim.</p>
 <p>One final update to my last post: I talked there about switching between tabs, but I've now stopped using tabs altogether. Seriously, folks, if you're using vim, learn about buffers: they are great. Especially with the latest version of Command-T which allows you to use the same fuzzy-matching search to switch between open buffers using <code>&lt;leader&gt;b</code>. Another advantage of buffers over tabs is that it allows you to have multiple windows open simultaneously in the same session: <code>Ctrl-w v</code> splits the main window horizontally, and <code>Ctrl-w w</code> switches between open windows (I've actually remapped Tab in normal mode to this). With a large monitor coupled with Google's <em>extremely</em> strict 80-character limit, you can easily have two or three files next to each other. A real productivity boost.</p>
     </div><!-- /.entry-content -->
+    <div class="comments">
+      <h2>Comments !</h2>
+      <div id="disqus_thread"></div>
+      <script type="text/javascript">
+        var disqus_identifier = "2012/02/04/improving-vim-terminal-development-environment/";
+        var disqus_url = "http://blog.roseman.org.uk/2012/02/04/improving-vim-terminal-development-environment/";
+        (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://rosemanblog.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+      </script>
+    </div>
 
   </article>
 </section>
@@ -57,6 +72,7 @@
                 <div class="social">
                         <h2>social</h2>
                         <ul>
+                            <li><a href="http://blog.roseman.org.uk/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
 
                             <li><a href="http://twitter.com/danielroseman">twitter</a></li>
                             <li><a href="http://github.com/danielroseman">github</a></li>
@@ -73,5 +89,14 @@
                 <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
         </footer><!-- /#contentinfo -->
 
+<script type="text/javascript">
+    var disqus_shortname = 'rosemanblog';
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = 'http://' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
 </body>
 </html>

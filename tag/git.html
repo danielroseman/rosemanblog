@@ -3,7 +3,8 @@
 <head>
         <meta charset="utf-8" />
         <title>rosemanblog - git</title>
-        <link rel="stylesheet" href="../theme/css/main.css" />
+        <link rel="stylesheet" href="http://blog.roseman.org.uk/theme/css/main.css" />
+        <link href="http://blog.roseman.org.uk/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="rosemanblog Atom Feed" />
 
         <!--[if IE]>
             <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -12,25 +13,25 @@
 
 <body id="index" class="home">
         <header id="banner" class="body">
-                <h1><a href="../">rosemanblog </a></h1>
+                <h1><a href="http://blog.roseman.org.uk/">rosemanblog </a></h1>
                 <nav><ul>
-                    <li><a href="../category/technical.html">Technical</a></li>
+                    <li><a href="http://blog.roseman.org.uk/category/technical.html">Technical</a></li>
                 </ul></nav>
         </header><!-- /#banner -->
 
             <aside id="featured" class="body">
                 <article>
-                    <h1 class="entry-title"><a href="../2009/10/03/one-where-my-friend-sysadmin-kills-me/">The one where my friend the sysadmin kills me</a></h1>
+                    <h1 class="entry-title"><a href="http://blog.roseman.org.uk/2009/10/03/one-where-my-friend-sysadmin-kills-me/">The one where my friend the sysadmin kills me</a></h1>
 <footer class="post-info">
         <abbr class="published" title="2009-10-03T08:14:29">
                 Sat 03 October 2009
         </abbr>
 
         <address class="vcard author">
-                By <a class="url fn" href="../author/daniel-roseman.html">Daniel Roseman</a>
+                By <a class="url fn" href="http://blog.roseman.org.uk/author/daniel-roseman.html">Daniel Roseman</a>
         </address>
-<p>In <a href="../category/technical.html">Technical</a>. </p>
-<p>tags: <a href="../tag/git.html">git</a></p>
+<p>In <a href="http://blog.roseman.org.uk/category/technical.html">Technical</a>. </p>
+<p>tags: <a href="http://blog.roseman.org.uk/tag/git.html">git</a></p>
 </footer><!-- /.post-info --><p>Warning: this entry is very much a matter of 'This isn't the right way to do it, but it works for me'.</p>
 <p>For small projects that are in active development, I frequently have to deploy code changes to the live server. To make this as simple as possible for me, so I can concentrate on the coding, I tend to like running on a live checkout of the code directly from the repo.</p>
 <p>I never really got this automated properly with svn, although no doubt it's a simple matter of setting up the right post-commit hooks. However, now I'm working mainly in git, and I thought it would be good if I could push straight from my local repo to the remote one, and automatically see the production code update.</p>
@@ -56,7 +57,7 @@ env -i ~/bin/git pull
 <p>The two git commands simply ensure that the live branch has no local changes, and pulls all changes direct from master - which in turn of course has been updated directly from my development machine.</p>
 <p>The rest is me trying to be even cleverer. I wanted an automatic cache-busting mechanism to stop my javascript being cached while in development. So I have a simple <code>local_settings.py</code> file which defines a value which is appended to the querystring of all my asset urls. The hook updates this automatically - it is passed the hash of the current commit, so it reads the parameters (which is far more difficult in bash than it needs to be, by the way), extracts the hash, and writes it to <code>local_settings.py</code>.</p>
 <p>The final step is to restart Apache, and we're laughing.</p>
-<p>Now, no doubt there are much better ways of doing this. But like I say, it works for me.</p>                </article>
+<p>Now, no doubt there are much better ways of doing this. But like I say, it works for me.</p><p>There are <a href="http://blog.roseman.org.uk/2009/10/03/one-where-my-friend-sysadmin-kills-me/#disqus_thread">comments</a>.</p>                </article>
 <p class="paginator">
     Page 1 / 1
 </p>
@@ -67,6 +68,7 @@ env -i ~/bin/git pull
                 <div class="social">
                         <h2>social</h2>
                         <ul>
+                            <li><a href="http://blog.roseman.org.uk/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
 
                             <li><a href="http://twitter.com/danielroseman">twitter</a></li>
                             <li><a href="http://github.com/danielroseman">github</a></li>
@@ -83,5 +85,14 @@ env -i ~/bin/git pull
                 <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
         </footer><!-- /#contentinfo -->
 
+<script type="text/javascript">
+    var disqus_shortname = 'rosemanblog';
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = 'http://' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
 </body>
 </html>

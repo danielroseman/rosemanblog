@@ -3,7 +3,8 @@
 <head>
         <meta charset="utf-8" />
         <title>Customising Django-Mingus</title>
-        <link rel="stylesheet" href="../../../../theme/css/main.css" />
+        <link rel="stylesheet" href="http://blog.roseman.org.uk/theme/css/main.css" />
+        <link href="http://blog.roseman.org.uk/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="rosemanblog Atom Feed" />
 
         <!--[if IE]>
             <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -12,17 +13,18 @@
 
 <body id="index" class="home">
         <header id="banner" class="body">
-                <h1><a href="../../../../">rosemanblog </a></h1>
+                <h1><a href="http://blog.roseman.org.uk/">rosemanblog </a></h1>
                 <nav><ul>
-                    <li class="active"><a href="../../../../category/technical.html">Technical</a></li>
+                    <li class="active"><a href="http://blog.roseman.org.uk/category/technical.html">Technical</a></li>
                 </ul></nav>
         </header><!-- /#banner -->
 <section id="content" class="body">
   <article>
     <header>
       <h1 class="entry-title">
-        <a href="../../../../2009/10/04/customising-django-mingus/" rel="bookmark"
+        <a href="http://blog.roseman.org.uk/2009/10/04/customising-django-mingus/" rel="bookmark"
            title="Permalink to Customising Django-Mingus">Customising Django-Mingus</a></h1>
+<a href="http://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="danielroseman">Tweet</a><script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
     </header>
 
     <div class="entry-content">
@@ -32,10 +34,10 @@
         </abbr>
 
         <address class="vcard author">
-                By <a class="url fn" href="../../../../author/daniel-roseman.html">Daniel Roseman</a>
+                By <a class="url fn" href="http://blog.roseman.org.uk/author/daniel-roseman.html">Daniel Roseman</a>
         </address>
-<p>In <a href="../../../../category/technical.html">Technical</a>. </p>
-<p>tags: <a href="../../../../tag/django.html">django</a><a href="../../../../tag/mingus.html">mingus</a></p>
+<p>In <a href="http://blog.roseman.org.uk/category/technical.html">Technical</a>. </p>
+<p>tags: <a href="http://blog.roseman.org.uk/tag/django.html">django</a><a href="http://blog.roseman.org.uk/tag/mingus.html">mingus</a></p>
 </footer><!-- /.post-info -->      <p>This blog is built using Kevin Fricovsky's excellent <a href="http://github.com/montylounge/django-mingus">django-mingus</a> project, which is mainly a set of standard pre-existing reusable apps with some templates and a bit of glue to hold it together.</p>
 <p>Although it's quite usable out of the box, I found - inveterate hacker that I am - that there were several things that I didn't quite like in the project as it was. So I changed them (isn't open source great, laydees-n-genelmen). At some point I'll fork the project on github and upload the changes, but for now here's what I've done.</p>
 <p>Firstly, mingus forsakes Django's built-in comments framework for the external <a href="http://disqus.com/">Disqus</a> project. I didn't really fancy signing up for another service - especially as I'm not expecting vast numbers of comments on this blog. It's quite a simple matter to reinstate the comments - the relevant template code is included in the <code>post_detail.html</code> template included with the basic-blog app which mingus extends, so I just needed to copy and paste it into the mingus version. Then add <code>(r'comments/', include('django.contrib.comments.urls')),</code> to urls.py, <code>django.contrib.comments</code> to settings.py, run a syncdb and it's all done.</p>
@@ -68,6 +70,19 @@
 <p>So much for comments. Now, layout. I couldn't help thinking that the default layout had the main area to narrow and the right-hand column too wide. Luckily the templates are based on the <a href="http://github.com/montylounge/django-mingus">960 Grid System</a> css, so it was easy to change the central column to use the <code>grid_11 suffix_1</code> classes, for a width of 11/16 and a gutter of 1/16, and the right-hand column to use <code>grid_4</code>.</p>
 <p>The final issue was to do with markup - that was a bit more complicated, so I'll leave it to part 2.</p>
     </div><!-- /.entry-content -->
+    <div class="comments">
+      <h2>Comments !</h2>
+      <div id="disqus_thread"></div>
+      <script type="text/javascript">
+        var disqus_identifier = "2009/10/04/customising-django-mingus/";
+        var disqus_url = "http://blog.roseman.org.uk/2009/10/04/customising-django-mingus/";
+        (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://rosemanblog.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+      </script>
+    </div>
 
   </article>
 </section>
@@ -75,6 +90,7 @@
                 <div class="social">
                         <h2>social</h2>
                         <ul>
+                            <li><a href="http://blog.roseman.org.uk/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
 
                             <li><a href="http://twitter.com/danielroseman">twitter</a></li>
                             <li><a href="http://github.com/danielroseman">github</a></li>
@@ -91,5 +107,14 @@
                 <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
         </footer><!-- /#contentinfo -->
 
+<script type="text/javascript">
+    var disqus_shortname = 'rosemanblog';
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = 'http://' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
 </body>
 </html>

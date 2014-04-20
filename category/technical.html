@@ -3,7 +3,8 @@
 <head>
         <meta charset="utf-8" />
         <title>rosemanblog - Technical</title>
-        <link rel="stylesheet" href="../theme/css/main.css" />
+        <link rel="stylesheet" href="http://blog.roseman.org.uk/theme/css/main.css" />
+        <link href="http://blog.roseman.org.uk/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="rosemanblog Atom Feed" />
 
         <!--[if IE]>
             <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -12,25 +13,25 @@
 
 <body id="index" class="home">
         <header id="banner" class="body">
-                <h1><a href="../">rosemanblog </a></h1>
+                <h1><a href="http://blog.roseman.org.uk/">rosemanblog </a></h1>
                 <nav><ul>
-                    <li class="active"><a href="../category/technical.html">Technical</a></li>
+                    <li class="active"><a href="http://blog.roseman.org.uk/category/technical.html">Technical</a></li>
                 </ul></nav>
         </header><!-- /#banner -->
 
             <aside id="featured" class="body">
                 <article>
-                    <h1 class="entry-title"><a href="../2013/12/17/a-better-vim-go-to-declaration-with-asts/">A better vim 'go to declaration' with ASTs.</a></h1>
+                    <h1 class="entry-title"><a href="http://blog.roseman.org.uk/2013/12/17/a-better-vim-go-to-declaration-with-asts/">A better vim 'go to declaration' with ASTs.</a></h1>
 <footer class="post-info">
         <abbr class="published" title="2013-12-17T11:15:00">
                 Tue 17 December 2013
         </abbr>
 
         <address class="vcard author">
-                By <a class="url fn" href="../author/daniel-roseman.html">Daniel Roseman</a>
+                By <a class="url fn" href="http://blog.roseman.org.uk/author/daniel-roseman.html">Daniel Roseman</a>
         </address>
-<p>In <a href="../category/technical.html">Technical</a>. </p>
-<p>tags: <a href="../tag/python.html">python</a><a href="../tag/vim.html">vim</a><a href="../tag/ast.html">ast</a></p>
+<p>In <a href="http://blog.roseman.org.uk/category/technical.html">Technical</a>. </p>
+<p>tags: <a href="http://blog.roseman.org.uk/tag/python.html">python</a><a href="http://blog.roseman.org.uk/tag/vim.html">vim</a><a href="http://blog.roseman.org.uk/tag/ast.html">ast</a></p>
 </footer><!-- /.post-info --><p>There are loads of little commands in vim for navigating around your files. One of the ones I like the most is <code>gd</code>, for "go to local declaration". What that does - or is supposed to do - is find the place at which the identifier under the cursor is declared or defined, and go to it. </p>
 <p>However, as the documentation states, this is "not guaranteed to work" - and in fact rarely does. The issue is that vim does not parse the code and find the actual definition: what it does it to find the beginning of the current function (which rarely works in Python anyway) or the top of the file, and search forward from there. Even if that did work reliably, it still wouldn't cope with definitions at class or module level, and doesn't distinguish between variables defined at different scopes.</p>
 <p>No doubt the proper fix here is to use something like ctags, that processes your file and outputs a tags list that can be used by vim's tag matching. But that still wouldn't really understand scope. Anyway, I wanted to see if this could be done dynamically, by using Python itself to try and extract some meaning from the code, and determine where the variable was actually defined using its understanding of the scope. So, in my insanity, I turned to ASTs.</p>
@@ -104,7 +105,7 @@
 
 <p>All that's left is the wrapper to grab the word under the vim cursor using <code>vim.eval('expand("&lt;cword&gt;")')</code>, pass it to the Checker, extract the target definition, and go to the relevant line/column. One last tiny tweak is that not all nodes have an actual child node for the definition itself - eg the FunctionDef above starts on col 0, but the name itself is on col 4 - so we use a simply Python <code>str.find</code> to move to the actual column position of the name.</p>
 <p>Now, of course this is still very far from perfect. It won't resolve names imported via <code>from module import *</code> - but of course no-one would ever use that anyway. Much more seriously though, it can't find names that are defined outside the current scope tree. For example, if you call a method that defines a series of attributes on an object, then return it, and <em>then</em> pass it to another method, inside that second method the scope chain has no record of where the new attributes were originally defined. Similarly, it won't find methods that are defined on an object's superclass. I haven't yet come up with any good way of fixing that, although in practice it doesn't seem to be a huge problem.</p>
-<p>You can find the code on <a href="http://github.com/danielroseman/pygd-vim">GitHub</a>.</p>                </article>
+<p>You can find the code on <a href="http://github.com/danielroseman/pygd-vim">GitHub</a>.</p><p>There are <a href="http://blog.roseman.org.uk/2013/12/17/a-better-vim-go-to-declaration-with-asts/#disqus_thread">comments</a>.</p>                </article>
             </aside><!-- /#featured -->
                 <section id="content" class="body">
                     <h1>Other articles</h1>
@@ -113,7 +114,7 @@
 
             <li><article class="hentry">
                 <header>
-                    <h1><a href="../2013/09/19/stepping-through-code-in-ipython/" rel="bookmark"
+                    <h1><a href="http://blog.roseman.org.uk/2013/09/19/stepping-through-code-in-ipython/" rel="bookmark"
                            title="Permalink to Stepping through code in IPython">Stepping through code in IPython</a></h1>
                 </header>
 
@@ -124,18 +125,18 @@
         </abbr>
 
         <address class="vcard author">
-                By <a class="url fn" href="../author/daniel-roseman.html">Daniel Roseman</a>
+                By <a class="url fn" href="http://blog.roseman.org.uk/author/daniel-roseman.html">Daniel Roseman</a>
         </address>
-<p>In <a href="../category/technical.html">Technical</a>. </p>
-<p>tags: <a href="../tag/python.html">python</a><a href="../tag/ipython.html">ipython</a></p>
+<p>In <a href="http://blog.roseman.org.uk/category/technical.html">Technical</a>. </p>
+<p>tags: <a href="http://blog.roseman.org.uk/tag/python.html">python</a><a href="http://blog.roseman.org.uk/tag/ipython.html">ipython</a></p>
 </footer><!-- /.post-info -->                <p>I spend a lot of time in the Python shell - specifically, IPython. Like many Python programmers, I find it invaluable for delving into the structure of objects, exploring their members, running their methods, and so on. It's really the dynamic language's answer to the really good IDE support ...</p>
-                <a class="readmore" href="../2013/09/19/stepping-through-code-in-ipython/">read more</a>
-                </div><!-- /.entry-content -->
+                <a class="readmore" href="http://blog.roseman.org.uk/2013/09/19/stepping-through-code-in-ipython/">read more</a>
+<p>There are <a href="http://blog.roseman.org.uk/2013/09/19/stepping-through-code-in-ipython/#disqus_thread">comments</a>.</p>                </div><!-- /.entry-content -->
             </article></li>
 
             <li><article class="hentry">
                 <header>
-                    <h1><a href="../2012/05/30/querysets-arent-as-lazy-as-you-think/" rel="bookmark"
+                    <h1><a href="http://blog.roseman.org.uk/2012/05/30/querysets-arent-as-lazy-as-you-think/" rel="bookmark"
                            title="Permalink to Querysets aren't as lazy as you think">Querysets aren't as lazy as you think</a></h1>
                 </header>
 
@@ -146,18 +147,18 @@
         </abbr>
 
         <address class="vcard author">
-                By <a class="url fn" href="../author/daniel-roseman.html">Daniel Roseman</a>
+                By <a class="url fn" href="http://blog.roseman.org.uk/author/daniel-roseman.html">Daniel Roseman</a>
         </address>
-<p>In <a href="../category/technical.html">Technical</a>. </p>
-<p>tags: <a href="../tag/django.html">django</a><a href="../tag/queryset.html">queryset</a></p>
+<p>In <a href="http://blog.roseman.org.uk/category/technical.html">Technical</a>. </p>
+<p>tags: <a href="http://blog.roseman.org.uk/tag/django.html">django</a><a href="http://blog.roseman.org.uk/tag/queryset.html">queryset</a></p>
 </footer><!-- /.post-info -->                <p>It should be reasonably well-known by now that querysets are lazy. That is, simply instantiating a queryset via a manager doesn't actually hit the database: that doesn't happen until the queryset is sliced or iterated. That's why the first field definition in the form below is safe ...</p>
-                <a class="readmore" href="../2012/05/30/querysets-arent-as-lazy-as-you-think/">read more</a>
-                </div><!-- /.entry-content -->
+                <a class="readmore" href="http://blog.roseman.org.uk/2012/05/30/querysets-arent-as-lazy-as-you-think/">read more</a>
+<p>There are <a href="http://blog.roseman.org.uk/2012/05/30/querysets-arent-as-lazy-as-you-think/#disqus_thread">comments</a>.</p>                </div><!-- /.entry-content -->
             </article></li>
 
             <li><article class="hentry">
                 <header>
-                    <h1><a href="../2012/02/20/moving-to-pelican/" rel="bookmark"
+                    <h1><a href="http://blog.roseman.org.uk/2012/02/20/moving-to-pelican/" rel="bookmark"
                            title="Permalink to Moving to Pelican">Moving to Pelican</a></h1>
                 </header>
 
@@ -168,18 +169,18 @@
         </abbr>
 
         <address class="vcard author">
-                By <a class="url fn" href="../author/daniel-roseman.html">Daniel Roseman</a>
+                By <a class="url fn" href="http://blog.roseman.org.uk/author/daniel-roseman.html">Daniel Roseman</a>
         </address>
-<p>In <a href="../category/technical.html">Technical</a>. </p>
-<p>tags: <a href="../tag/meta.html">meta</a><a href="../tag/blog.html">blog</a><a href="../tag/pelican.html">pelican</a><a href="../tag/python.html">python</a></p>
+<p>In <a href="http://blog.roseman.org.uk/category/technical.html">Technical</a>. </p>
+<p>tags: <a href="http://blog.roseman.org.uk/tag/meta.html">meta</a><a href="http://blog.roseman.org.uk/tag/blog.html">blog</a><a href="http://blog.roseman.org.uk/tag/pelican.html">pelican</a><a href="http://blog.roseman.org.uk/tag/python.html">python</a></p>
 </footer><!-- /.post-info -->                <p>I'm starting to blog again more regularly, but of course half the fun of having your own blog is mucking about with the technology that powers it. Encouraged by others who've recently made the switch, I've moved this blog over to the static page generation system <a href="https://github.com/ametaireau/pelican/">Pelican ...</a></p>
-                <a class="readmore" href="../2012/02/20/moving-to-pelican/">read more</a>
-                </div><!-- /.entry-content -->
+                <a class="readmore" href="http://blog.roseman.org.uk/2012/02/20/moving-to-pelican/">read more</a>
+<p>There are <a href="http://blog.roseman.org.uk/2012/02/20/moving-to-pelican/#disqus_thread">comments</a>.</p>                </div><!-- /.entry-content -->
             </article></li>
 
             <li><article class="hentry">
                 <header>
-                    <h1><a href="../2012/02/04/improving-vim-terminal-development-environment/" rel="bookmark"
+                    <h1><a href="http://blog.roseman.org.uk/2012/02/04/improving-vim-terminal-development-environment/" rel="bookmark"
                            title="Permalink to Improving the vim terminal development environment">Improving the vim terminal development environment</a></h1>
                 </header>
 
@@ -190,18 +191,18 @@
         </abbr>
 
         <address class="vcard author">
-                By <a class="url fn" href="../author/daniel-roseman.html">Daniel Roseman</a>
+                By <a class="url fn" href="http://blog.roseman.org.uk/author/daniel-roseman.html">Daniel Roseman</a>
         </address>
-<p>In <a href="../category/technical.html">Technical</a>. </p>
-<p>tags: <a href="../tag/vim.html">vim</a><a href="../tag/iterm2.html">iterm2</a></p>
+<p>In <a href="http://blog.roseman.org.uk/category/technical.html">Technical</a>. </p>
+<p>tags: <a href="http://blog.roseman.org.uk/tag/vim.html">vim</a><a href="http://blog.roseman.org.uk/tag/iterm2.html">iterm2</a></p>
 </footer><!-- /.post-info -->                <p>Since I started working at Google, I've been doing almost all my development using vim through the terminal. Since <a href="/2010/12/15/macvim-terminal-vim/">my last post</a> on the subject (over a year ago - bad blogger), I've discovered some significant improvements to what I recommended there, and I thought I'd share what ...</p>
-                <a class="readmore" href="../2012/02/04/improving-vim-terminal-development-environment/">read more</a>
-                </div><!-- /.entry-content -->
+                <a class="readmore" href="http://blog.roseman.org.uk/2012/02/04/improving-vim-terminal-development-environment/">read more</a>
+<p>There are <a href="http://blog.roseman.org.uk/2012/02/04/improving-vim-terminal-development-environment/#disqus_thread">comments</a>.</p>                </div><!-- /.entry-content -->
             </article></li>
 
             <li><article class="hentry">
                 <header>
-                    <h1><a href="../2010/12/15/macvim-terminal-vim/" rel="bookmark"
+                    <h1><a href="http://blog.roseman.org.uk/2010/12/15/macvim-terminal-vim/" rel="bookmark"
                            title="Permalink to From MacVim to terminal vim">From MacVim to terminal vim</a></h1>
                 </header>
 
@@ -212,18 +213,18 @@
         </abbr>
 
         <address class="vcard author">
-                By <a class="url fn" href="../author/daniel-roseman.html">Daniel Roseman</a>
+                By <a class="url fn" href="http://blog.roseman.org.uk/author/daniel-roseman.html">Daniel Roseman</a>
         </address>
-<p>In <a href="../category/technical.html">Technical</a>. </p>
-<p>tags: <a href="../tag/vim.html">vim</a><a href="../tag/macvim.html">macvim</a><a href="../tag/terminal.html">terminal</a><a href="../tag/ubuntu.html">ubuntu</a></p>
+<p>In <a href="http://blog.roseman.org.uk/category/technical.html">Technical</a>. </p>
+<p>tags: <a href="http://blog.roseman.org.uk/tag/vim.html">vim</a><a href="http://blog.roseman.org.uk/tag/macvim.html">macvim</a><a href="http://blog.roseman.org.uk/tag/terminal.html">terminal</a><a href="http://blog.roseman.org.uk/tag/ubuntu.html">ubuntu</a></p>
 </footer><!-- /.post-info -->                <p>I'm a very happy user of MacVim, which very nicely integrates vim into a native Mac app. But occasionally I need to edit code via a terminal, which means dropping back to plain old vim. Recently I found myself working on a project that was distributed on a self-contained ...</p>
-                <a class="readmore" href="../2010/12/15/macvim-terminal-vim/">read more</a>
-                </div><!-- /.entry-content -->
+                <a class="readmore" href="http://blog.roseman.org.uk/2010/12/15/macvim-terminal-vim/">read more</a>
+<p>There are <a href="http://blog.roseman.org.uk/2010/12/15/macvim-terminal-vim/#disqus_thread">comments</a>.</p>                </div><!-- /.entry-content -->
             </article></li>
 
             <li><article class="hentry">
                 <header>
-                    <h1><a href="../2010/08/14/getting-related-item-aggregate/" rel="bookmark"
+                    <h1><a href="http://blog.roseman.org.uk/2010/08/14/getting-related-item-aggregate/" rel="bookmark"
                            title="Permalink to Getting the related item in an aggregate">Getting the related item in an aggregate</a></h1>
                 </header>
 
@@ -234,18 +235,18 @@
         </abbr>
 
         <address class="vcard author">
-                By <a class="url fn" href="../author/daniel-roseman.html">Daniel Roseman</a>
+                By <a class="url fn" href="http://blog.roseman.org.uk/author/daniel-roseman.html">Daniel Roseman</a>
         </address>
-<p>In <a href="../category/technical.html">Technical</a>. </p>
-<p>tags: <a href="../tag/django.html">django</a><a href="../tag/aggregation.html">aggregation</a><a href="../tag/orm.html">ORM</a></p>
+<p>In <a href="http://blog.roseman.org.uk/category/technical.html">Technical</a>. </p>
+<p>tags: <a href="http://blog.roseman.org.uk/tag/django.html">django</a><a href="http://blog.roseman.org.uk/tag/aggregation.html">aggregation</a><a href="http://blog.roseman.org.uk/tag/orm.html">ORM</a></p>
 </footer><!-- /.post-info -->                <p>There's a question I see quite a lot at StackOverflow and the Django Users group regarding aggregation in Django. It goes like this: I know how to annotate a max/min value for a related item on each item in a queryset. But how do I get the actual ...</p>
-                <a class="readmore" href="../2010/08/14/getting-related-item-aggregate/">read more</a>
-                </div><!-- /.entry-content -->
+                <a class="readmore" href="http://blog.roseman.org.uk/2010/08/14/getting-related-item-aggregate/">read more</a>
+<p>There are <a href="http://blog.roseman.org.uk/2010/08/14/getting-related-item-aggregate/#disqus_thread">comments</a>.</p>                </div><!-- /.entry-content -->
             </article></li>
 
             <li><article class="hentry">
                 <header>
-                    <h1><a href="../2010/07/25/europython-2010-talk-advanced-django-orm-technique/" rel="bookmark"
+                    <h1><a href="http://blog.roseman.org.uk/2010/07/25/europython-2010-talk-advanced-django-orm-technique/" rel="bookmark"
                            title="Permalink to Europython 2010 talk: Advanced Django ORM Techniques">Europython 2010 talk: Advanced Django ORM Techniques</a></h1>
                 </header>
 
@@ -256,21 +257,21 @@
         </abbr>
 
         <address class="vcard author">
-                By <a class="url fn" href="../author/daniel-roseman.html">Daniel Roseman</a>
+                By <a class="url fn" href="http://blog.roseman.org.uk/author/daniel-roseman.html">Daniel Roseman</a>
         </address>
-<p>In <a href="../category/technical.html">Technical</a>. </p>
-<p>tags: <a href="../tag/django.html">django</a><a href="../tag/python.html">python</a><a href="../tag/europython.html">europython</a><a href="../tag/conference.html">conference</a></p>
+<p>In <a href="http://blog.roseman.org.uk/category/technical.html">Technical</a>. </p>
+<p>tags: <a href="http://blog.roseman.org.uk/tag/django.html">django</a><a href="http://blog.roseman.org.uk/tag/python.html">python</a><a href="http://blog.roseman.org.uk/tag/europython.html">europython</a><a href="http://blog.roseman.org.uk/tag/conference.html">conference</a></p>
 </footer><!-- /.post-info -->                <p>Here are the slides from my talk at Europython 2010, Advanced Django ORM Techniques.</p>
 <div style="width:425px" id="__ss_4817160"><strong style="display:block;margin:12px 0 4px"><a href="http://www.slideshare.net/danielroseman/advanced-django-orm-techniques" title="Advanced Django ORM techniques">Advanced Django ORM techniques</a></strong><object id="__sse4817160" width="425" height="355"><param name="movie" value="http://static.slidesharecdn.com/swf/ssplayer2.swf?doc=europython-100722111505-phpapp01&stripped_title=advanced-django-orm-techniques" /><param name="allowFullScreen" value="true"/><param name="allowScriptAccess" value="always"/><embed name="__sse4817160" src="http://static.slidesharecdn.com/swf/ssplayer2.swf?doc=europython-100722111505-phpapp01&stripped_title=advanced-django-orm-techniques" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="425" height="355"></embed></object><div style="padding:5px 0 12px"></div></div>
 
 <p>The talk is mainly a summary of the query optimisation tricks I've previously talked about on this blog, although I did begin by explaining briefly how models, fields and relationships work ...</p>
-                <a class="readmore" href="../2010/07/25/europython-2010-talk-advanced-django-orm-technique/">read more</a>
-                </div><!-- /.entry-content -->
+                <a class="readmore" href="http://blog.roseman.org.uk/2010/07/25/europython-2010-talk-advanced-django-orm-technique/">read more</a>
+<p>There are <a href="http://blog.roseman.org.uk/2010/07/25/europython-2010-talk-advanced-django-orm-technique/#disqus_thread">comments</a>.</p>                </div><!-- /.entry-content -->
             </article></li>
 
             <li><article class="hentry">
                 <header>
-                    <h1><a href="../2010/06/02/class-based-views-and-thread-safety/" rel="bookmark"
+                    <h1><a href="http://blog.roseman.org.uk/2010/06/02/class-based-views-and-thread-safety/" rel="bookmark"
                            title="Permalink to Class-based views and thread safety">Class-based views and thread safety</a></h1>
                 </header>
 
@@ -281,18 +282,18 @@
         </abbr>
 
         <address class="vcard author">
-                By <a class="url fn" href="../author/daniel-roseman.html">Daniel Roseman</a>
+                By <a class="url fn" href="http://blog.roseman.org.uk/author/daniel-roseman.html">Daniel Roseman</a>
         </address>
-<p>In <a href="../category/technical.html">Technical</a>. </p>
-<p>tags: <a href="../tag/django.html">django</a><a href="../tag/thread_safety.html">thread_safety</a><a href="../tag/class_based_view.html">class_based_view</a></p>
+<p>In <a href="http://blog.roseman.org.uk/category/technical.html">Technical</a>. </p>
+<p>tags: <a href="http://blog.roseman.org.uk/tag/django.html">django</a><a href="http://blog.roseman.org.uk/tag/thread_safety.html">thread_safety</a><a href="http://blog.roseman.org.uk/tag/class_based_view.html">class_based_view</a></p>
 </footer><!-- /.post-info -->                <p>I <a href="/2010/02/1/middleware-post-processing-django-gotcha/">previously wrote about</a> a thread-safety bug I encountered in writing a middleware object. I recently found a very similar situation in a class-based view I was modifying, and thought it was worth writing up what the problem was and how I solved it. Interestingly, there's <a href="http://groups.google.com/group/django-developers/browse_thread/thread/e23d9a5a58fe5891">a discussion going ...</a></p>
-                <a class="readmore" href="../2010/06/02/class-based-views-and-thread-safety/">read more</a>
-                </div><!-- /.entry-content -->
+                <a class="readmore" href="http://blog.roseman.org.uk/2010/06/02/class-based-views-and-thread-safety/">read more</a>
+<p>There are <a href="http://blog.roseman.org.uk/2010/06/02/class-based-views-and-thread-safety/#disqus_thread">comments</a>.</p>                </div><!-- /.entry-content -->
             </article></li>
 
             <li><article class="hentry">
                 <header>
-                    <h1><a href="../2010/05/10/django-aggregation-and-simple-group/" rel="bookmark"
+                    <h1><a href="http://blog.roseman.org.uk/2010/05/10/django-aggregation-and-simple-group/" rel="bookmark"
                            title="Permalink to Django aggregation and a simple GROUP BY">Django aggregation and a simple GROUP BY</a></h1>
                 </header>
 
@@ -303,25 +304,26 @@
         </abbr>
 
         <address class="vcard author">
-                By <a class="url fn" href="../author/daniel-roseman.html">Daniel Roseman</a>
+                By <a class="url fn" href="http://blog.roseman.org.uk/author/daniel-roseman.html">Daniel Roseman</a>
         </address>
-<p>In <a href="../category/technical.html">Technical</a>. </p>
-<p>tags: <a href="../tag/django.html">django</a><a href="../tag/aggregation.html">aggregation</a><a href="../tag/orm.html">ORM</a><a href="../tag/group-by.html">group-by</a></p>
+<p>In <a href="http://blog.roseman.org.uk/category/technical.html">Technical</a>. </p>
+<p>tags: <a href="http://blog.roseman.org.uk/tag/django.html">django</a><a href="http://blog.roseman.org.uk/tag/aggregation.html">aggregation</a><a href="http://blog.roseman.org.uk/tag/orm.html">ORM</a><a href="http://blog.roseman.org.uk/tag/group-by.html">group-by</a></p>
 </footer><!-- /.post-info -->                <p>I love Django's aggregation framework. It very successfully abstracts the common aggregration tasks into a Pythonic syntax that sits extremely well with the rest of the ORM, and the documentation explains it all without a single reference to SQL.</p>
 <p>But sometimes that very abstraction gets in the way of ...</p>
-                <a class="readmore" href="../2010/05/10/django-aggregation-and-simple-group/">read more</a>
-                </div><!-- /.entry-content -->
+                <a class="readmore" href="http://blog.roseman.org.uk/2010/05/10/django-aggregation-and-simple-group/">read more</a>
+<p>There are <a href="http://blog.roseman.org.uk/2010/05/10/django-aggregation-and-simple-group/#disqus_thread">comments</a>.</p>                </div><!-- /.entry-content -->
             </article></li>
             </ol><!-- /#posts-list -->
 <p class="paginator">
     Page 1 / 3
-        <a href="../category/technical2.html">&raquo;</a>
+        <a href="http://blog.roseman.org.uk/category/technical2.html">&raquo;</a>
 </p>
             </section><!-- /#content -->
         <section id="extras" class="body">
                 <div class="social">
                         <h2>social</h2>
                         <ul>
+                            <li><a href="http://blog.roseman.org.uk/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
 
                             <li><a href="http://twitter.com/danielroseman">twitter</a></li>
                             <li><a href="http://github.com/danielroseman">github</a></li>
@@ -338,5 +340,14 @@
                 <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
         </footer><!-- /#contentinfo -->
 
+<script type="text/javascript">
+    var disqus_shortname = 'rosemanblog';
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = 'http://' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
 </body>
 </html>

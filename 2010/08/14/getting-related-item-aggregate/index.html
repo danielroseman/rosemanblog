@@ -3,7 +3,8 @@
 <head>
         <meta charset="utf-8" />
         <title>Getting the related item in an aggregate</title>
-        <link rel="stylesheet" href="../../../../theme/css/main.css" />
+        <link rel="stylesheet" href="http://blog.roseman.org.uk/theme/css/main.css" />
+        <link href="http://blog.roseman.org.uk/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="rosemanblog Atom Feed" />
 
         <!--[if IE]>
             <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -12,17 +13,18 @@
 
 <body id="index" class="home">
         <header id="banner" class="body">
-                <h1><a href="../../../../">rosemanblog </a></h1>
+                <h1><a href="http://blog.roseman.org.uk/">rosemanblog </a></h1>
                 <nav><ul>
-                    <li class="active"><a href="../../../../category/technical.html">Technical</a></li>
+                    <li class="active"><a href="http://blog.roseman.org.uk/category/technical.html">Technical</a></li>
                 </ul></nav>
         </header><!-- /#banner -->
 <section id="content" class="body">
   <article>
     <header>
       <h1 class="entry-title">
-        <a href="../../../../2010/08/14/getting-related-item-aggregate/" rel="bookmark"
+        <a href="http://blog.roseman.org.uk/2010/08/14/getting-related-item-aggregate/" rel="bookmark"
            title="Permalink to Getting the related item in an aggregate">Getting the related item in an aggregate</a></h1>
+<a href="http://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="danielroseman">Tweet</a><script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
     </header>
 
     <div class="entry-content">
@@ -32,10 +34,10 @@
         </abbr>
 
         <address class="vcard author">
-                By <a class="url fn" href="../../../../author/daniel-roseman.html">Daniel Roseman</a>
+                By <a class="url fn" href="http://blog.roseman.org.uk/author/daniel-roseman.html">Daniel Roseman</a>
         </address>
-<p>In <a href="../../../../category/technical.html">Technical</a>. </p>
-<p>tags: <a href="../../../../tag/django.html">django</a><a href="../../../../tag/aggregation.html">aggregation</a><a href="../../../../tag/orm.html">ORM</a></p>
+<p>In <a href="http://blog.roseman.org.uk/category/technical.html">Technical</a>. </p>
+<p>tags: <a href="http://blog.roseman.org.uk/tag/django.html">django</a><a href="http://blog.roseman.org.uk/tag/aggregation.html">aggregation</a><a href="http://blog.roseman.org.uk/tag/orm.html">ORM</a></p>
 </footer><!-- /.post-info -->      <p>There's a question I see quite a lot at StackOverflow and the Django Users group regarding aggregation in Django. It goes like this: I know how to annotate a max/min value for a related item on each item in a queryset. But how do I get the actual related item itself?</p>
 <p>I wish this was easier than it actually is. The problem is that in the underlying SQL, annotating the value is a simple aggregation query on the related item, whereas getting the entire object means moving to a complicated dependent subquery.</p>
 <p>To illustrate, take these models:</p>
@@ -94,6 +96,19 @@
 <p>Here we do a standard annotate query to get the <code>added</code> values for each relevant Entry. Then we can do an <code>extra</code> query to get the actual Entries associated with each <code>(blog_id, max_entry)</code> tuple (note we can't use the <code>params</code> argument for the values list, unfortunately, as it will get double-quoted). Finally, we can re-associate each Entry with its Blog - I've done it that way round to fit in with the standard ForeignKey and its automatic mapping of <code>entry._blog_cache</code> to <code>entry.blog</code>, and since we're only interested in one entry per blog it shouldn't matter whether we have to iterate through blogs or entries.</p>
 <p>Again, it's a shame we have to drop to raw SQL for the middle step here. The query depends on matching multiple values for each row, and although it would be possible to do this by iterating through and adding Q objects for each row, it would be an absolutely horrible query. At least we're using <code>extra</code> here, which is arguably better than the <code>raw</code> we used in the first attempt above. </p>
     </div><!-- /.entry-content -->
+    <div class="comments">
+      <h2>Comments !</h2>
+      <div id="disqus_thread"></div>
+      <script type="text/javascript">
+        var disqus_identifier = "2010/08/14/getting-related-item-aggregate/";
+        var disqus_url = "http://blog.roseman.org.uk/2010/08/14/getting-related-item-aggregate/";
+        (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://rosemanblog.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+      </script>
+    </div>
 
   </article>
 </section>
@@ -101,6 +116,7 @@
                 <div class="social">
                         <h2>social</h2>
                         <ul>
+                            <li><a href="http://blog.roseman.org.uk/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
 
                             <li><a href="http://twitter.com/danielroseman">twitter</a></li>
                             <li><a href="http://github.com/danielroseman">github</a></li>
@@ -117,5 +133,14 @@
                 <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
         </footer><!-- /#contentinfo -->
 
+<script type="text/javascript">
+    var disqus_shortname = 'rosemanblog';
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = 'http://' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
 </body>
 </html>

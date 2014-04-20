@@ -3,7 +3,8 @@
 <head>
         <meta charset="utf-8" />
         <title>rosemanblog - select_related</title>
-        <link rel="stylesheet" href="../theme/css/main.css" />
+        <link rel="stylesheet" href="http://blog.roseman.org.uk/theme/css/main.css" />
+        <link href="http://blog.roseman.org.uk/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="rosemanblog Atom Feed" />
 
         <!--[if IE]>
             <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -12,25 +13,25 @@
 
 <body id="index" class="home">
         <header id="banner" class="body">
-                <h1><a href="../">rosemanblog </a></h1>
+                <h1><a href="http://blog.roseman.org.uk/">rosemanblog </a></h1>
                 <nav><ul>
-                    <li><a href="../category/technical.html">Technical</a></li>
+                    <li><a href="http://blog.roseman.org.uk/category/technical.html">Technical</a></li>
                 </ul></nav>
         </header><!-- /#banner -->
 
             <aside id="featured" class="body">
                 <article>
-                    <h1 class="entry-title"><a href="../2010/02/22/django-patterns-part-4-forwards-generic-relations/">Django patterns, part 4: forwards generic relations</a></h1>
+                    <h1 class="entry-title"><a href="http://blog.roseman.org.uk/2010/02/22/django-patterns-part-4-forwards-generic-relations/">Django patterns, part 4: forwards generic relations</a></h1>
 <footer class="post-info">
         <abbr class="published" title="2010-02-22T06:50:55">
                 Mon 22 February 2010
         </abbr>
 
         <address class="vcard author">
-                By <a class="url fn" href="../author/daniel-roseman.html">Daniel Roseman</a>
+                By <a class="url fn" href="http://blog.roseman.org.uk/author/daniel-roseman.html">Daniel Roseman</a>
         </address>
-<p>In <a href="../category/technical.html">Technical</a>. </p>
-<p>tags: <a href="../tag/django.html">django</a><a href="../tag/patterns.html">patterns</a><a href="../tag/generic-relation.html">generic-relation</a><a href="../tag/select_related.html">select_related</a><a href="../tag/query-efficiency.html">query-efficiency</a></p>
+<p>In <a href="http://blog.roseman.org.uk/category/technical.html">Technical</a>. </p>
+<p>tags: <a href="http://blog.roseman.org.uk/tag/django.html">django</a><a href="http://blog.roseman.org.uk/tag/patterns.html">patterns</a><a href="http://blog.roseman.org.uk/tag/generic-relation.html">generic-relation</a><a href="http://blog.roseman.org.uk/tag/select_related.html">select_related</a><a href="http://blog.roseman.org.uk/tag/query-efficiency.html">query-efficiency</a></p>
 </footer><!-- /.post-info --><p>My <a href="/2010/02/15/django-patterns-part-3-efficient-generic-relations/">last post</a> talked about how to follow reverse generic relations efficiently. However, there's a further potential inefficiency in using generic relations, and that's the forward relationship.</p>
 <p>If once again we take the example of an Asset model with a GenericForeignKey used to point at Articles and Galleries, we can get from each individual Asset to its related item by doing <code>asset.content_object</code>. However, if we have a whole queryset of Assets, doing this:</p>
 <div class="highlight"><pre><span class="cp">{%</span> <span class="k">for</span> <span class="nv">asset</span> <span class="k">in</span> <span class="nv">assets</span> <span class="cp">%}</span>
@@ -59,7 +60,7 @@
 
 
 <p>Here we get all the different content types used by the relationships in the queryset, and the set of distinct object IDs for each one, then use the built-in <code>in_bulk</code> manager method to  get all the content types at once in a nice ready-to-use dictionary keyed by ID. Then, we do one query per content type, again using <code>in_bulk</code>, to get all the actual object. </p>
-<p>Finally, we simply set the relevant object to the <code>_content_object_cache</code> field of the source item. The reason we do this is that this is the attribute that Django would check, and populate if necessary, if you called <code>x.content_object</code> directly. By pre-populating it, we're ensuring that Django will never need to call the individual lookup - in effect what we're doing is implementing a kind of <code>select_related()</code> for generic relations. </p>                </article>
+<p>Finally, we simply set the relevant object to the <code>_content_object_cache</code> field of the source item. The reason we do this is that this is the attribute that Django would check, and populate if necessary, if you called <code>x.content_object</code> directly. By pre-populating it, we're ensuring that Django will never need to call the individual lookup - in effect what we're doing is implementing a kind of <code>select_related()</code> for generic relations. </p><p>There are <a href="http://blog.roseman.org.uk/2010/02/22/django-patterns-part-4-forwards-generic-relations/#disqus_thread">comments</a>.</p>                </article>
 <p class="paginator">
     Page 1 / 1
 </p>
@@ -70,6 +71,7 @@
                 <div class="social">
                         <h2>social</h2>
                         <ul>
+                            <li><a href="http://blog.roseman.org.uk/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
 
                             <li><a href="http://twitter.com/danielroseman">twitter</a></li>
                             <li><a href="http://github.com/danielroseman">github</a></li>
@@ -86,5 +88,14 @@
                 <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
         </footer><!-- /#contentinfo -->
 
+<script type="text/javascript">
+    var disqus_shortname = 'rosemanblog';
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = 'http://' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
 </body>
 </html>
