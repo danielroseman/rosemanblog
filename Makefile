@@ -1,56 +1,79 @@
+PY?=python
+PELICAN?=pelican
+PELICANOPTS=
 
-PELICAN=pelican
-PELICANOPTS=None
-
-BASEDIR=$(PWD)
-INPUTDIR=$(BASEDIR)/src
+BASEDIR=$(CURDIR)
+INPUTDIR=$(BASEDIR)/content
 OUTPUTDIR=$(BASEDIR)/output
 CONFFILE=$(BASEDIR)/pelican.conf.py
 
-FTP_HOST=localhost
-FTP_USER=anonymous
-FTP_TARGET_DIR=/
+S3_BUCKET=blog.roseman.org.uk
+CLOUDFRONT_DISTRIBUTION=EGKF4CUXJPVPR 
 
-SSH_HOST=locahost
-SSH_USER=root
-SSH_TARGET_DIR=/var/www
-
-DROPBOX_DIR=~/Dropbox/Public/
+DEBUG ?= 0
+ifeq ($(DEBUG), 1)
+	PELICANOPTS += -D
+endif
 
 help:
-	@echo 'Makefile for a pelican Web site                                       '
-	@echo '                                                                      '
-	@echo 'Usage:                                                                '
-	@echo '   make html                        (re)generate the web site         '
-	@echo '   make clean                       remove the generated files        '
-	@echo '   ftp_upload                       upload the web site using FTP     '
-	@echo '   ssh_upload                       upload the web site using SSH     '
-	@echo '   dropbox_upload                   upload the web site using Dropbox '
-	@echo '                                                                      '
+	@echo 'Makefile for a pelican Web site                                           '
+	@echo '                                                                          '
+	@echo 'Usage:                                                                    '
+	@echo '   make html                           (re)generate the web site          '
+	@echo '   make clean                          remove the generated files         '
+	@echo '   make regenerate                     regenerate files upon modification '
+	@echo '   make publish                        generate using production settings '
+	@echo '   make serve [PORT=8000]              serve site at http://localhost:8000'
+	@echo '   make serve-global [SERVER=0.0.0.0]  serve (as root) to $(SERVER):80    '
+	@echo '   make devserver [PORT=8000]          start/restart develop_server.sh    '
+	@echo '   make stopserver                     stop local server                  '
+	@echo '   make s3_upload                      upload the web site via S3         '
+	@echo '                                                                          '
+	@echo 'Set the DEBUG variable to 1 to enable debugging, e.g. make DEBUG=1 html   '
+	@echo '                                                                          '
 
-
-html: clean $(OUTPUTDIR)/index.html
-	@echo 'Done'
-
-$(OUTPUTDIR)/%.html:
-	$(PELICAN) $(INPUTDIR) -o $(OUTPUTDIR) -s $(CONFFILE)
+html:
+	$(PELICAN) $(INPUTDIR) -o $(OUTPUTDIR) -s $(CONFFILE) $(PELICANOPTS) --relative-urls
 
 clean:
-	rm -fr $(OUTPUTDIR)
-	mkdir $(OUTPUTDIR)
+	[ ! -d $(OUTPUTDIR) ] || rm -rf $(OUTPUTDIR)
 
-dropbox_upload: $(OUTPUTDIR)/index.html
-	cp -r $(OUTPUTDIR)/* $(DROPBOX_DIR)
+regenerate:
+	$(PELICAN) -r $(INPUTDIR) -o $(OUTPUTDIR) -s $(CONFFILE) $(PELICANOPTS)
 
-ssh_upload: $(OUTPUTDIR)/index.html
-	scp -r $(OUTPUTDIR)/* $(SSH_USER)@$(SSH_HOST):$(SSH_TARGET_DIR)
+serve:
+ifdef PORT
+	cd $(OUTPUTDIR) && $(PY) -m pelican.server $(PORT)
+else
+	cd $(OUTPUTDIR) && $(PY) -m pelican.server
+endif
 
-ftp_upload: $(OUTPUTDIR)/index.html
-	lftp ftp://$(FTP_USER)@$(FTP_HOST) -e "mirror -R $(OUTPUT_DIR)/* $(FTP_TARGET_DIR) ; quit"
+serve-global:
+ifdef SERVER
+	cd $(OUTPUTDIR) && $(PY) -m pelican.server 80 $(SERVER)
+else
+	cd $(OUTPUTDIR) && $(PY) -m pelican.server 80 0.0.0.0
+endif
 
-github: $(OUTPUTDIR)/index.html
-	ghp-import $(OUTPUTDIR)
-	git push origin gh-pages
 
-.PHONY: html help clean ftp_upload ssh_upload dropbox_upload github
-    
+devserver:
+ifdef PORT
+	$(BASEDIR)/develop_server.sh restart $(PORT)
+else
+	$(BASEDIR)/develop_server.sh restart
+endif
+
+stopserver:
+	$(BASEDIR)/develop_server.sh stop
+	@echo 'Stopped Pelican and SimpleHTTPServer processes running in background.'
+
+publish:
+	$(PELICAN) $(INPUTDIR) -o $(OUTPUTDIR) -s $(CONFFILE) $(PELICANOPTS)
+
+s3_upload: publish
+	aws s3 sync $(OUTPUTDIR)/ s3://$(S3_BUCKET) --delete
+ifdef CLOUDFRONT_DISTRIBUTION
+	aws cloudfront create-invalidation --distribution-id $(CLOUDFRONT_DISTRIBUTION) --paths '/*'
+endif
+
+.PHONY: html help clean regenerate serve serve-global devserver publish s3_upload 
